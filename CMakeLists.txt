@@ -1,42 +1,32 @@
 cmake_minimum_required(VERSION 3.16)
-project(terragl VERSION 1.0.0 LANGUAGES CXX)
+project(terragl VERSION 1.0.0 LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(FetchContent)
-
-FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.4
-)
-FetchContent_MakeAvailable(glfw)
-
-FetchContent_Declare(
-    glm
-    GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG 1.0.1
-)
-FetchContent_MakeAvailable(glm)
 
 FetchContent_Declare(
     glad
     GIT_REPOSITORY https://github.com/Dav1dde/glad.git
     GIT_TAG v2.0.8
+    SOURCE_SUBDIR cmake
 )
 FetchContent_MakeAvailable(glad)
-add_subdirectory(${glad_SOURCE_DIR}/cmake glad_build)
+
+add_executable(terragl)
 
 file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp src/**/*.cpp)
-add_executable(terragl ${SRC_FILES})
+target_sources(terragl PRIVATE ${SRC_FILES})
+
+find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)
+
+glad_add_library(glad_gl_core_46 REPRODUCIBLE API gl:core=4.6)
 
 target_link_libraries(terragl PRIVATE
-    glad
+    glad_gl_core_46
     glfw
-    glm::glm
+    ${OpenGL_LIBRARIES}
 )
-
-if(UNIX AND NOT APPLE)
-    target_link_libraries(terragl PRIVATE dl pthread)
-endif()
