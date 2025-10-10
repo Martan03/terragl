@@ -7,7 +7,7 @@
 
 namespace tgl::gl {
 
-class Program {
+class Program : public GLResource<Program> {
 public:
     Program(const char *ver_shader, const char *frag_shader) {
         auto vertex = Shader::vertex(ver_shader);
@@ -16,31 +16,22 @@ public:
         auto fragment = Shader::fragment(frag_shader);
         fragment.compile();
 
-        this->id = glCreateProgram();
-        glAttachShader(this->id, vertex.get());
-        glAttachShader(this->id, fragment.get());
+        _id = glCreateProgram();
+        glAttachShader(_id, vertex.get());
+        glAttachShader(_id, fragment.get());
 
-        glLinkProgram(this->id);
+        glLinkProgram(_id);
         check_status(
             glGetProgramiv,
             glGetProgramInfoLog,
-            this->id,
+            _id,
             GL_LINK_STATUS,
             "Failed to link program"
         );
     }
 
-    ~Program() {
-        if (this->id != 0) {
-            glDeleteProgram(this->id);
-            this->id = 0;
-        }
-    }
-
-    void use() { glUseProgram(this->id); }
-
-private:
-    GLuint id = 0;
+    void use() { glUseProgram(_id); }
+    void destroy() { glDeleteProgram(_id); }
 };
 
 } // namespace tgl::gl

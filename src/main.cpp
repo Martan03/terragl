@@ -5,8 +5,10 @@
 
 #include "gl/buffer.hpp"
 #include "gl/program.hpp"
+#include "gl/texture.hpp"
 #include "gl/vertex_array.hpp"
 #include "gl/window.hpp"
+#include "height_map/height_map.hpp"
 
 #include <glm/glm.hpp>
 #if true
@@ -40,27 +42,36 @@ unsigned int indices[] = {
     1, 2, 3  // second triangle
 };
 
+float quadVertices[] = {
+    // positions   // texcoords
+    -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+    -1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f
+};
+
 const char *VER_SHADER = R".(
 #version 460 core
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec3 col;
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 tex;
 
-out vec3 color;
+out vec2 TexCoord;
 
 void main() {
-    gl_Position = vec4(pos, 1.0);
-    color = col;
+    gl_Position = vec4(pos, 0.0, 1.0);
+    TexCoord = tex;
 }
 ).";
 
 const char *FRAG_SHADER = R".(
 #version 460 core
-in vec3 color;
+in vec2 TexCoord;
 
 out vec4 FragColor;
 
+uniform sampler2D heightMap;
+
 void main() {
-    FragColor = vec4(color, 1);
+    float h = texture(heightMap, TexCoord).r;
+    FragColor = vec4(h, h, h, 1);
 }
 ).";
 
@@ -87,28 +98,52 @@ int main() {
 
     auto vbo = tgl::gl::Buffer();
     vbo.bind(GL_ARRAY_BUFFER);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    auto ebo = tgl::gl::Buffer();
-    ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
     glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW
+        GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW
     );
 
+    // auto ebo = tgl::gl::Buffer();
+    // ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
+    // glBufferData(
+    //     GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW
+    // );
+
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0
+        0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0
     );
     glEnableVertexAttribArray(0);
 
     glVertexAttribPointer(
         1,
-        3,
+        2,
         GL_FLOAT,
         GL_FALSE,
-        6 * sizeof(float),
-        (void *)(3 * sizeof(float))
+        4 * sizeof(float),
+        (void *)(2 * sizeof(float))
     );
     glEnableVertexAttribArray(1);
+
+    auto heights = tgl::height_map::HeightMap(256, 256);
+    heights.perlin_gen();
+    auto pixels = heights.pixels();
+
+    auto texture = tgl::gl::Texture();
+    texture.bind();
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RED,
+        256,
+        256,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        pixels.data()
+    );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     program.use();
     glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
@@ -117,7 +152,8 @@ int main() {
         window.handle_input();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         window.swap_poll();
     }

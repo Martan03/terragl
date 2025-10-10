@@ -8,6 +8,21 @@
 
 namespace tgl::gl {
 
+template<typename Derived> class GLResource {
+public:
+    ~GLResource() {
+        if (_id != 0) {
+            static_cast<Derived *>(this)->destroy();
+            _id = 0;
+        }
+    }
+
+    GLuint get() const { return _id; }
+
+protected:
+    GLuint _id = 0;
+};
+
 static inline void check_status(
     const std::function<void(GLint, GLint, GLint *)> &get_info,
     const std::function<void(GLint, GLint, GLint *, GLchar *)> &get_log,

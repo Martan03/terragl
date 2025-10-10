@@ -6,11 +6,11 @@
 
 namespace tgl::gl {
 
-class Buffer : public GLResource<Buffer> {
+class Texture : public GLResource<Texture> {
 public:
-    Buffer() { glGenBuffers(1, &_id); }
+    Texture() { glGenTextures(1, &_id); }
 
-    void bind(GLenum target) { glBindBuffer(target, _id); }
+    void bind() { glBindTexture(GL_TEXTURE_2D, _id); }
     void destroy() { glDeleteTextures(1, &_id); }
 };
 

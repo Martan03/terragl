@@ -6,11 +6,11 @@
 
 namespace tgl::gl {
 
-class Shader {
+class Shader : public GLResource<Shader> {
 public:
     Shader(const char *shader, int type) {
-        this->id = glCreateShader(type);
-        glShaderSource(this->id, 1, &shader, nullptr);
+        _id = glCreateShader(type);
+        glShaderSource(_id, 1, &shader, nullptr);
     }
 
     static Shader vertex(const char *shader) {
@@ -21,28 +21,18 @@ public:
         return { shader, GL_FRAGMENT_SHADER };
     }
 
-    ~Shader() {
-        if (this->id != 0) {
-            glDeleteShader(this->id);
-            this->id = 0;
-        }
-    }
-
-    GLuint get() { return this->id; }
-
     void compile() {
-        glCompileShader(this->id);
+        glCompileShader(_id);
         check_status(
             glGetShaderiv,
             glGetShaderInfoLog,
-            this->id,
+            _id,
             GL_COMPILE_STATUS,
             "Failed to compile shader"
         );
     }
 
-private:
-    GLuint id = 0;
+    void destroy() { glDeleteShader(_id); }
 };
 
 } // namespace tgl::gl
