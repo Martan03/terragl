@@ -3,8 +3,12 @@
 
 #include <glad/gl.h>
 
+#include "gl/buffer.hpp"
 #include "gl/program.hpp"
+#include "gl/vertex_array.hpp"
 #include "gl/window.hpp"
+
+#include <glm/glm.hpp>
 #if true
 #include <GLFW/glfw3.h>
 #endif
@@ -78,16 +82,15 @@ int main() {
 
     auto program = tgl::gl::Program(VER_SHADER, FRAG_SHADER);
 
-    GLuint VBO, VAO, EBO;
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &EBO);
-    glBindVertexArray(VAO);
+    auto vao = tgl::gl::VertexArray();
+    vao.bind();
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    auto vbo = tgl::gl::Buffer();
+    vbo.bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    auto ebo = tgl::gl::Buffer();
+    ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW
     );
@@ -118,9 +121,6 @@ int main() {
 
         window.swap_poll();
     }
-
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
 
     glfwTerminate();
     return 0;
