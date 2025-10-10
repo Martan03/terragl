@@ -2,6 +2,9 @@
 #include <string_view>
 
 #include <glad/gl.h>
+
+#include "gl/program.hpp"
+#include "gl/window.hpp"
 #if true
 #include <GLFW/glfw3.h>
 #endif
@@ -22,17 +25,11 @@ void err_callback(
     std::println("{}", std::string_view(message, length));
 }
 
-void processInput(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-}
-
 float vertices[] = {
-    0.5f,  0.5f,  0.0f, // top right
-    0.5f,  -0.5f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, // bottom left
-    -0.5f, 0.5f,  0.0f  // top left
+    0.5f,  0.5f,  0.0f, 1, 0, 0, // top right
+    0.5f,  -0.5f, 0.0f, 0, 1, 0, // bottom right
+    -0.5f, -0.5f, 0.0f, 1, 0, 0, // bottom left
+    -0.5f, 0.5f,  0.0f, 0, 0, 1, // top left
 };
 unsigned int indices[] = {
     0, 1, 3, // first triangle
@@ -41,40 +38,37 @@ unsigned int indices[] = {
 
 const char *VER_SHADER = R".(
 #version 460 core
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec3 col;
+
+out vec3 color;
 
 void main() {
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = vec4(pos, 1.0);
+    color = col;
 }
 ).";
 
 const char *FRAG_SHADER = R".(
 #version 460 core
+in vec3 color;
+
 out vec4 FragColor;
 
 void main() {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    FragColor = vec4(color, 1);
 }
 ).";
 
 int main() {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "terragl", NULL, NULL);
-    if (window == NULL) {
-        std::println("Failed to create a window");
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    auto window = tgl::gl::Window(800, 600, "terragl");
+    window.context();
+    glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback);
 
     if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD");
-        glfwDestroyWindow(window);
         glfwTerminate();
         return -1;
     }
@@ -82,40 +76,7 @@ int main() {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(err_callback, nullptr);
 
-    auto ver_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(ver_shader, 1, &VER_SHADER, NULL);
-    glCompileShader(ver_shader);
-
-    int success;
-    glGetShaderiv(ver_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetShaderInfoLog(ver_shader, 512, NULL, infoLog);
-        std::println("Error: {}", infoLog);
-        return -1;
-    }
-
-    auto frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(frag_shader, 1, &FRAG_SHADER, NULL);
-    glCompileShader(frag_shader);
-
-    glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetShaderInfoLog(frag_shader, 512, NULL, infoLog);
-        std::println("Error: {}", infoLog);
-        return -1;
-    }
-
-    // TODO: check valid creation
-    auto shader_program = glCreateProgram();
-    glAttachShader(shader_program, ver_shader);
-    glAttachShader(shader_program, frag_shader);
-    // TODO: check error (glGetProgramiv and glGetProgramInfoLog)
-    glLinkProgram(shader_program);
-
-    glDeleteShader(ver_shader);
-    glDeleteShader(frag_shader);
+    auto program = tgl::gl::Program(VER_SHADER, FRAG_SHADER);
 
     GLuint VBO, VAO, EBO;
     glGenBuffers(1, &VBO);
@@ -132,28 +93,35 @@ int main() {
     );
 
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0
+        0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0
     );
     glEnableVertexAttribArray(0);
 
-    glUseProgram(shader_program);
-    glClearColor(0.2f, 0.8f, 0.7f, 1.0f);
+    glVertexAttribPointer(
+        1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        6 * sizeof(float),
+        (void *)(3 * sizeof(float))
+    );
+    glEnableVertexAttribArray(1);
 
-    while (!glfwWindowShouldClose(window)) {
-        processInput(window);
+    program.use();
+    glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
+
+    while (!window.should_close()) {
+        window.handle_input();
         glClear(GL_COLOR_BUFFER_BIT);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window.swap_poll();
     }
 
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
-    glDeleteProgram(shader_program);
 
-    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
