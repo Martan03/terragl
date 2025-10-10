@@ -96,17 +96,13 @@ int main() {
     auto vao = tgl::gl::VertexArray();
     vao.bind();
 
-    auto vbo = tgl::gl::Buffer();
-    vbo.bind(GL_ARRAY_BUFFER);
-    glBufferData(
-        GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW
-    );
+    auto vbo = tgl::gl::Buffer(GL_ARRAY_BUFFER);
+    vbo.bind();
+    vbo.set(quadVertices);
 
-    // auto ebo = tgl::gl::Buffer();
-    // ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
-    // glBufferData(
-    //     GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW
-    // );
+    // auto ebo = tgl::gl::Buffer(GL_ELEMENT_ARRAY_BUFFER);
+    // ebo.bind();
+    // ebo.set(indices);
 
     glVertexAttribPointer(
         0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0
@@ -140,10 +136,10 @@ int main() {
         GL_UNSIGNED_BYTE,
         pixels.data()
     );
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    texture.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    texture.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    texture.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    texture.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     program.use();
     glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
