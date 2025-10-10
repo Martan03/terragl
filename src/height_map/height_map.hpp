@@ -10,21 +10,28 @@ namespace tgl::height_map {
 
 class HeightMap {
 public:
-    HeightMap(int width, int height, float freq = 0.05, float amp = 20) :
+    HeightMap(
+        int width,
+        int height,
+        float freq = 0.05,
+        float amp = 20,
+        float lacunarity = 2,
+        float persist = 0.5
+    ) :
         _width(width),
         _height(height),
         _map(width * height),
         _freq(freq),
-        _amp(amp) { }
+        _amp(amp),
+        _lacunarity(lacunarity),
+        _persist(persist) { }
 
-    void perlin_gen() {
+    void perlin_gen(int oct = 1) {
         auto perlin = Perlin2();
         for (int y = 0; y < _height; ++y) {
             for (int x = 0; x < _width; ++x) {
-                float val = perlin.noise(x * _freq, y * _freq);
-                // _map[y * _width + x] = val * _amp;
-                // For testing noise gen
-                _map[y * _width + x] = (val + 1) / 2;
+                float val = perlin.noise(x * _freq, y * _freq, oct);
+                _map[y * _width + x] = (val + 1) * 0.5f;
             }
         }
     }
@@ -69,8 +76,19 @@ public:
 
 private:
     int _width, _height;
-    float _freq, _amp;
+    float _freq = 0.05, _amp = 20;
+    float _lacunarity = 2, _persist = 0.5;
     std::vector<float> _map;
+
+    template<typename NoiseFunc> void gen_noise(NoiseFunc noise_func) {
+        auto perlin = Perlin2();
+        for (int y = 0; y < _height; ++y) {
+            for (int x = 0; x < _width; ++x) {
+                float val = noise_func(perlin, x * _freq, y * _freq);
+                _map[y * _width + x] = (val + 1) * 0.5f;
+            }
+        }
+    }
 };
 
 } // namespace tgl::height_map

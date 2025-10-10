@@ -33,6 +33,23 @@ public:
         return lerp(x1, x2, v);
     }
 
+    float noise(
+        float x, float y, int oct, float lacunarity = 2, float persist = 0.5
+    ) {
+        float total = 0, max = 0;
+        float freq = 1, amp = 1;
+
+        for (int i = 0; i < oct; ++i) {
+            total += noise(x * freq, y * freq) * amp;
+            max += amp;
+
+            amp *= persist;
+            freq *= lacunarity;
+        }
+
+        return total / max;
+    }
+
 private:
     std::vector<int> _perm;
 

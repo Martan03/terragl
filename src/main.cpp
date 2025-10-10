@@ -124,7 +124,7 @@ int main() {
     glEnableVertexAttribArray(1);
 
     auto heights = tgl::height_map::HeightMap(256, 256);
-    heights.perlin_gen();
+    heights.perlin_gen(5);
     auto pixels = heights.pixels();
 
     auto texture = tgl::gl::Texture();
