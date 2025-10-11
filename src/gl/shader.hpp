@@ -21,7 +21,7 @@ public:
         return { shader, GL_FRAGMENT_SHADER };
     }
 
-    void compile() {
+    void compile() const {
         glCompileShader(_id);
         check_status(
             glGetShaderiv,
@@ -32,7 +32,7 @@ public:
         );
     }
 
-    void destroy() { glDeleteShader(_id); }
+    void destroy() const { glDeleteShader(_id); }
 };
 
 } // namespace tgl::gl

@@ -30,8 +30,12 @@ public:
         );
     }
 
-    void use() { glUseProgram(_id); }
-    void destroy() { glDeleteProgram(_id); }
+    void use() const { glUseProgram(_id); }
+    void destroy() const { glDeleteProgram(_id); }
+
+    GLint uniform_loc(const char *name) const {
+        return glGetUniformLocation(_id, name);
+    }
 };
 
 } // namespace tgl::gl

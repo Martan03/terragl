@@ -79,8 +79,6 @@ int main() {
     glfwInit();
 
     auto window = tgl::gl::Window(800, 600, "terragl");
-    window.context();
-    glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback);
 
     if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD");

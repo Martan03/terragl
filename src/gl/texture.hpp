@@ -8,17 +8,29 @@ namespace tgl::gl {
 
 class Texture : public GLResource<Texture> {
 public:
-    Texture(GLenum kind = GL_TEXTURE_2D) : _kind(kind) {
+    Texture() { }
+
+    Texture(GLenum kind, GLenum unit) : _kind(kind), _unit(unit) {
         glGenTextures(1, &_id);
     }
 
-    void bind() { glBindTexture(_kind, _id); }
-    void destroy() { glDeleteTextures(1, &_id); }
+    void bind() const {
+        glActiveTexture(_unit);
+        glBindTexture(_kind, _id);
+    }
+    void bind(GLenum unit) {
+        _unit = unit;
+        bind();
+    }
 
-    void param(GLenum name, GLenum val) { glTexParameteri(_kind, name, val); }
+    void destroy() const { glDeleteTextures(1, &_id); }
+    void param(GLenum name, GLenum val) const {
+        glTexParameteri(_kind, name, val);
+    }
 
 private:
-    GLenum _kind;
+    GLenum _kind = GL_TEXTURE_2D;
+    GLenum _unit = GL_TEXTURE0;
 };
 
 } // namespace tgl::gl

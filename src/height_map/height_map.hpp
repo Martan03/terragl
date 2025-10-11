@@ -28,22 +28,17 @@ public:
 
     void perlin_gen(int oct = 1) {
         auto perlin = Perlin2();
-        for (int y = 0; y < _height; ++y) {
-            for (int x = 0; x < _width; ++x) {
-                float val = perlin.noise(x * _freq, y * _freq, oct);
-                _map[y * _width + x] = (val + 1) * 0.5f;
-            }
-        }
+        for_each([&](int x, int y, int id) {
+            float val = perlin.noise(x * _freq, y * _freq, oct);
+            _map[id] = (val + 1) * 0.5f;
+        });
     }
 
     std::vector<glm::vec3> vertices() {
         std::vector<glm::vec3> vertices;
-        for (int y = 0; y < _height; ++y) {
-            for (int x = 0; x < _width; ++x) {
-                int id = y * _width + x;
-                vertices.push_back(glm::vec3(x, _map[id], y));
-            }
-        }
+        for_each([&](int x, int y, int id) {
+            vertices.push_back(glm::vec3(x, _map[id], y));
+        });
         return vertices;
     }
 
@@ -80,12 +75,11 @@ private:
     float _lacunarity = 2, _persist = 0.5;
     std::vector<float> _map;
 
-    template<typename NoiseFunc> void gen_noise(NoiseFunc noise_func) {
-        auto perlin = Perlin2();
+    template<typename Func> void for_each(Func func) {
         for (int y = 0; y < _height; ++y) {
             for (int x = 0; x < _width; ++x) {
-                float val = noise_func(perlin, x * _freq, y * _freq);
-                _map[y * _width + x] = (val + 1) * 0.5f;
+                auto id = y * _width + x;
+                func(x, y, id);
             }
         }
     }
