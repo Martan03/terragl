@@ -36,6 +36,9 @@ public:
     }
 
     GLFWwindow *get() { return _window; }
+    int width() { return _width; }
+    int height() { return _height; }
+    float ratio() { return (float)_width / (float)_height; }
 
     void context() { glfwMakeContextCurrent(_window); }
     int should_close() { return glfwWindowShouldClose(_window); }

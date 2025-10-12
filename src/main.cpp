@@ -10,7 +10,13 @@
 #include "gl/window.hpp"
 #include "height_map/height_map.hpp"
 
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/trigonometric.hpp>
 #if true
 #include <GLFW/glfw3.h>
 #endif
@@ -32,31 +38,42 @@ void err_callback(
 }
 
 float vertices[] = {
-    0.5f,  0.5f,  0.0f, 1, 0, 0, // top right
-    0.5f,  -0.5f, 0.0f, 0, 1, 0, // bottom right
-    -0.5f, -0.5f, 0.0f, 1, 0, 0, // bottom left
-    -0.5f, 0.5f,  0.0f, 0, 0, 1, // top left
-};
-unsigned int indices[] = {
-    0, 1, 3, // first triangle
-    1, 2, 3  // second triangle
+    // positions   // texcoords
+    -0.5f, -0.5f, -0.5, 0.0f, 0.0f, // front bottom left 0
+    0.5f,  -0.5f, -0.5, 1.0f, 0.0f, // front bottom right 1
+    -0.5f, 0.5f,  -0.5, 0.0f, 1.0f, // front top left 2
+    0.5f,  0.5f,  -0.5, 1.0f, 1.0f, // front top right 3
+    -0.5f, -0.5f, 0.5,  1.0f, 1.0f, // back bottom right 4
+    0.5f,  -0.5f, 0.5,  0.0f, 1.0f, // back bottom left 5
+    -0.5f, 0.5f,  0.5,  1.0f, 0.0f, // back top right 6
+    0.5f,  0.5f,  0.5,  0.0f, 0.0f, // back top left 7
 };
 
-float quadVertices[] = {
-    // positions   // texcoords
-    -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-    -1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f
+unsigned int indices[] = { 0, 1, 2, 1, 2, 3, 1, 5, 3, 5, 3, 7,
+                           5, 4, 7, 4, 7, 6, 4, 0, 6, 0, 6, 2,
+                           2, 3, 6, 3, 6, 7, 0, 1, 4, 1, 4, 5 };
+
+glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(-1.7f, 3.0f, -7.5f),  glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.6f, 2.0f, -2.9f),   glm::vec3(2.0f, 0.2f, -3.0f),
+    glm::vec3(-1.7f, 1.0f, -2.0f)
 };
 
 const char *VER_SHADER = R".(
 #version 460 core
-layout (location = 0) in vec2 pos;
+layout (location = 0) in vec3 pos;
 layout (location = 1) in vec2 tex;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
 
 out vec2 TexCoord;
 
 void main() {
-    gl_Position = vec4(pos, 0.0, 1.0);
+    gl_Position = proj * view * model * vec4(pos, 1.0);
     TexCoord = tex;
 }
 ).";
@@ -86,6 +103,7 @@ int main() {
         return -1;
     }
 
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(err_callback, nullptr);
 
@@ -96,14 +114,14 @@ int main() {
 
     auto vbo = tgl::gl::Buffer(GL_ARRAY_BUFFER);
     vbo.bind();
-    vbo.set(quadVertices);
+    vbo.set(vertices);
 
-    // auto ebo = tgl::gl::Buffer(GL_ELEMENT_ARRAY_BUFFER);
-    // ebo.bind();
-    // ebo.set(indices);
+    auto ebo = tgl::gl::Buffer(GL_ELEMENT_ARRAY_BUFFER);
+    ebo.bind();
+    ebo.set(indices);
 
     glVertexAttribPointer(
-        0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0
+        0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0
     );
     glEnableVertexAttribArray(0);
 
@@ -112,8 +130,8 @@ int main() {
         2,
         GL_FLOAT,
         GL_FALSE,
-        4 * sizeof(float),
-        (void *)(2 * sizeof(float))
+        5 * sizeof(float),
+        (void *)(3 * sizeof(float))
     );
     glEnableVertexAttribArray(1);
 
@@ -142,12 +160,39 @@ int main() {
     program.use();
     glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
 
+    auto view_mat = glm::mat4(1.0f);
+    view_mat = glm::translate(view_mat, glm::vec3(0.0f, 0.0f, -4));
+
     while (!window.should_close()) {
         window.handle_input();
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        auto proj_mat = glm::mat4(1);
+        proj_mat = glm::perspective(
+            glm::radians(45.0f), window.ratio(), 0.1f, 100.0f
+        );
+
+        auto view_loc = program.uniform_loc("view");
+        glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view_mat));
+        auto proj_loc = program.uniform_loc("proj");
+        glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj_mat));
+
+        for (int i = 0; i < 9; ++i) {
+            auto model_mat = glm::mat4(1);
+            model_mat = glm::translate(model_mat, cubePositions[i]);
+            float ang = 20.0f * i;
+            model_mat = glm::rotate(
+                model_mat,
+                (float)glfwGetTime() * glm::radians(50.0f) + ang,
+                glm::vec3(0.5, 1, 0)
+            );
+
+            auto model_loc = program.uniform_loc("model");
+            glUniformMatrix4fv(
+                model_loc, 1, GL_FALSE, glm::value_ptr(model_mat)
+            );
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        }
 
         window.swap_poll();
     }
