@@ -48,12 +48,6 @@ public:
         glfwPollEvents();
     }
 
-    void handle_input() {
-        if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(_window, true);
-        }
-    }
-
 private:
     GLFWwindow *_window = nullptr;
 

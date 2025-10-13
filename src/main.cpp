@@ -4,6 +4,7 @@
 #include <glad/gl.h>
 
 #include "gl/buffer.hpp"
+#include "gl/camera.hpp"
 #include "gl/program.hpp"
 #include "gl/texture.hpp"
 #include "gl/vertex_array.hpp"
@@ -21,8 +22,47 @@
 #include <GLFW/glfw3.h>
 #endif
 
+auto camera = tgl::gl::Camera(glm::vec3(0, 0, 4), glm::vec3(0, 0, -1));
+float last_x = -1;
+float last_y = -1;
+
+float delta = 0;
+float last = 0;
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+void handle_input(tgl::gl::Window &window, tgl::gl::Camera &camera) {
+    auto win = window.get();
+    if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window.get(), true);
+    }
+    if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS)
+        camera.process_key(tgl::gl::FORWARD, delta);
+    if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS)
+        camera.process_key(tgl::gl::BACKWARD, delta);
+    if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS)
+        camera.process_key(tgl::gl::LEFT, delta);
+    if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS)
+        camera.process_key(tgl::gl::RIGHT, delta);
+}
+
+void handle_mouse(GLFWwindow *window, double xpos_in, double ypos_in) {
+    auto xpos = static_cast<float>(xpos_in);
+    auto ypos = static_cast<float>(ypos_in);
+
+    if (last_x == -1 || last_y == -1) {
+        last_x = xpos;
+        last_y = ypos;
+    }
+
+    float xoffset = xpos - last_x;
+    float yoffset = last_y - ypos;
+    last_x = xpos;
+    last_y = ypos;
+
+    camera.process_mouse(xoffset, yoffset);
 }
 
 void err_callback(
@@ -96,6 +136,8 @@ int main() {
     glfwInit();
 
     auto window = tgl::gl::Window(800, 600, "terragl");
+    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window.get(), handle_mouse);
 
     if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD");
@@ -160,11 +202,12 @@ int main() {
     program.use();
     glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
 
-    auto view_mat = glm::mat4(1.0f);
-    view_mat = glm::translate(view_mat, glm::vec3(0.0f, 0.0f, -4));
-
     while (!window.should_close()) {
-        window.handle_input();
+        float current = static_cast<float>(glfwGetTime());
+        delta = current - last;
+        last = current;
+
+        handle_input(window, camera);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto proj_mat = glm::mat4(1);
@@ -172,6 +215,7 @@ int main() {
             glm::radians(45.0f), window.ratio(), 0.1f, 100.0f
         );
 
+        auto view_mat = camera.view();
         auto view_loc = program.uniform_loc("view");
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view_mat));
         auto proj_loc = program.uniform_loc("proj");
