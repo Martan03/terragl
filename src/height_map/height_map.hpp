@@ -30,7 +30,7 @@ public:
         auto perlin = Perlin2();
         for_each([&](int x, int y, int id) {
             float val = perlin.noise(x * _freq, y * _freq, oct);
-            _map[id] = (val + 1) * 0.5f;
+            _map[id] = val * _amp;
         });
     }
 

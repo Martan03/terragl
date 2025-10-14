@@ -6,7 +6,6 @@
 #include "gl/buffer.hpp"
 #include "gl/camera.hpp"
 #include "gl/program.hpp"
-#include "gl/texture.hpp"
 #include "gl/vertex_array.hpp"
 #include "gl/window.hpp"
 #include "height_map/height_map.hpp"
@@ -22,7 +21,7 @@
 #include <GLFW/glfw3.h>
 #endif
 
-auto camera = tgl::gl::Camera(glm::vec3(0, 0, 4), glm::vec3(0, 0, -1));
+auto camera = tgl::gl::Camera(glm::vec3(0, 5, 0), glm::vec3(0, 0, -1));
 float last_x = -1;
 float last_y = -1;
 
@@ -104,31 +103,23 @@ glm::vec3 cubePositions[] = {
 const char *VER_SHADER = R".(
 #version 460 core
 layout (location = 0) in vec3 pos;
-layout (location = 1) in vec2 tex;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
-out vec2 TexCoord;
 
 void main() {
     gl_Position = proj * view * model * vec4(pos, 1.0);
-    TexCoord = tex;
 }
 ).";
 
 const char *FRAG_SHADER = R".(
 #version 460 core
-in vec2 TexCoord;
-
 out vec4 FragColor;
 
-uniform sampler2D heightMap;
-
 void main() {
-    float h = texture(heightMap, TexCoord).r;
-    FragColor = vec4(h, h, h, 1);
+    FragColor = vec4(0, 0.5, 0, 1);
 }
 ).";
 
@@ -151,53 +142,26 @@ int main() {
 
     auto program = tgl::gl::Program(VER_SHADER, FRAG_SHADER);
 
+    auto heights = tgl::height_map::HeightMap(256, 256);
+    heights.perlin_gen(5);
+    auto pixels = heights.pixels();
+
     auto vao = tgl::gl::VertexArray();
     vao.bind();
 
     auto vbo = tgl::gl::Buffer(GL_ARRAY_BUFFER);
     vbo.bind();
-    vbo.set(vertices);
+    vbo.set(heights.vertices());
 
     auto ebo = tgl::gl::Buffer(GL_ELEMENT_ARRAY_BUFFER);
     ebo.bind();
-    ebo.set(indices);
+    ebo.set(heights.indices());
+    auto indices_cnt = heights.indices().size();
 
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0
+        0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)0
     );
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(
-        1,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        5 * sizeof(float),
-        (void *)(3 * sizeof(float))
-    );
-    glEnableVertexAttribArray(1);
-
-    auto heights = tgl::height_map::HeightMap(256, 256);
-    heights.perlin_gen(5);
-    auto pixels = heights.pixels();
-
-    auto texture = tgl::gl::Texture();
-    texture.bind();
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RED,
-        256,
-        256,
-        0,
-        GL_RED,
-        GL_UNSIGNED_BYTE,
-        pixels.data()
-    );
-    texture.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    texture.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    texture.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    texture.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     program.use();
     glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
@@ -215,28 +179,18 @@ int main() {
             glm::radians(45.0f), window.ratio(), 0.1f, 100.0f
         );
 
+        auto model_mat = glm::mat4(1);
+        auto model_loc = program.uniform_loc("model");
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model_mat));
+
         auto view_mat = camera.view();
         auto view_loc = program.uniform_loc("view");
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view_mat));
+
         auto proj_loc = program.uniform_loc("proj");
         glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj_mat));
 
-        for (int i = 0; i < 9; ++i) {
-            auto model_mat = glm::mat4(1);
-            model_mat = glm::translate(model_mat, cubePositions[i]);
-            float ang = 20.0f * i;
-            model_mat = glm::rotate(
-                model_mat,
-                (float)glfwGetTime() * glm::radians(50.0f) + ang,
-                glm::vec3(0.5, 1, 0)
-            );
-
-            auto model_loc = program.uniform_loc("model");
-            glUniformMatrix4fv(
-                model_loc, 1, GL_FALSE, glm::value_ptr(model_mat)
-            );
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        }
+        glDrawElements(GL_TRIANGLES, indices_cnt, GL_UNSIGNED_INT, 0);
 
         window.swap_poll();
     }
