@@ -37,7 +37,8 @@ public:
 
     void process_mouse(float xoffset, float yoffset) {
         _yaw += xoffset * _sens;
-        _pitch += std::min(std::max(yoffset * _sens, -89.0f), 89.0f);
+        _pitch += yoffset * _sens;
+        _pitch = std::clamp(_pitch, -89.0f, 89.0f);
         update_vecs();
     }
 
@@ -56,10 +57,10 @@ private:
     void update_vecs() {
         _dir.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
         _dir.y = sin(glm::radians(_pitch));
-        _dir.z = sin(glm::radians(_yaw) * cos(glm::radians(_pitch)));
+        _dir.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
         _dir = glm::normalize(_dir);
 
-        _right = glm::normalize(glm::cross(_dir, _up));
+        _right = glm::normalize(glm::cross(_dir, glm::vec3(0, 1, 0)));
         _up = glm::normalize(glm::cross(_right, _dir));
     }
 };
