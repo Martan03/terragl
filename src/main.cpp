@@ -76,50 +76,46 @@ void err_callback(
     std::println("{}", std::string_view(message, length));
 }
 
-float vertices[] = {
-    // positions   // texcoords
-    -0.5f, -0.5f, -0.5, 0.0f, 0.0f, // front bottom left 0
-    0.5f,  -0.5f, -0.5, 1.0f, 0.0f, // front bottom right 1
-    -0.5f, 0.5f,  -0.5, 0.0f, 1.0f, // front top left 2
-    0.5f,  0.5f,  -0.5, 1.0f, 1.0f, // front top right 3
-    -0.5f, -0.5f, 0.5,  1.0f, 1.0f, // back bottom right 4
-    0.5f,  -0.5f, 0.5,  0.0f, 1.0f, // back bottom left 5
-    -0.5f, 0.5f,  0.5,  1.0f, 0.0f, // back top right 6
-    0.5f,  0.5f,  0.5,  0.0f, 0.0f, // back top left 7
-};
-
-unsigned int indices[] = { 0, 1, 2, 1, 2, 3, 1, 5, 3, 5, 3, 7,
-                           5, 4, 7, 4, 7, 6, 4, 0, 6, 0, 6, 2,
-                           2, 3, 6, 3, 6, 7, 0, 1, 4, 1, 4, 5 };
-
-glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3(-1.7f, 3.0f, -7.5f),  glm::vec3(1.3f, -2.0f, -2.5f),
-    glm::vec3(1.6f, 2.0f, -2.9f),   glm::vec3(2.0f, 0.2f, -3.0f),
-    glm::vec3(-1.7f, 1.0f, -2.0f)
-};
-
 const char *VER_SHADER = R".(
 #version 460 core
 layout (location = 0) in vec3 pos;
+layout (location = 1) in vec3 norm;
+
+out vec3 fragPos;
+out vec3 normal;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
-
 void main() {
-    gl_Position = proj * view * model * vec4(pos, 1.0);
+    gl_Position = proj * view * model * vec4(pos, 1);
+    fragPos = vec3(model * vec4(pos, 1));
+    normal = norm;
 }
 ).";
 
 const char *FRAG_SHADER = R".(
 #version 460 core
+in vec3 fragPos;
+in vec3 normal;
+
 out vec4 FragColor;
 
+uniform vec3 lightPos;
+uniform vec3 lightColor;
+
 void main() {
-    FragColor = vec4(0, 0.5, 0, 1);
+    vec3 ambient = 0.1 * lightColor;
+
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - fragPos);
+
+    float diff = max(dot(norm, lightDir), 0);
+    vec3 diffuse = diff * lightColor;
+
+    vec3 result = (ambient + diffuse) * vec3(0, 0.5, 0);
+    FragColor = vec4(result, 1);
 }
 ).";
 
@@ -144,7 +140,6 @@ int main() {
 
     auto heights = tgl::height_map::HeightMap(256, 256);
     heights.perlin_gen(5);
-    auto pixels = heights.pixels();
 
     auto vao = tgl::gl::VertexArray();
     vao.bind();
@@ -159,12 +154,26 @@ int main() {
     auto indices_cnt = heights.indices().size();
 
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)0
+        0, 3, GL_FLOAT, GL_FALSE, sizeof(tgl::height_map::Vertex), (void *)0
     );
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(tgl::height_map::Vertex),
+        (void *)(sizeof(glm::vec3))
+    );
+    glEnableVertexAttribArray(1);
 
     program.use();
     glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
+
+    auto lpos_loc = program.uniform_loc("lightPos");
+    glUniform3f(lpos_loc, 128, 128, 0);
+    auto light_loc = program.uniform_loc("lightColor");
+    glUniform3f(light_loc, 1, 1, 1);
 
     while (!window.should_close()) {
         float current = static_cast<float>(glfwGetTime());
@@ -174,12 +183,8 @@ int main() {
         handle_input(window, camera);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto proj_mat = glm::mat4(1);
-        proj_mat = glm::perspective(
-            glm::radians(45.0f), window.ratio(), 0.1f, 100.0f
-        );
-
         auto model_mat = glm::mat4(1);
+        model_mat = glm::translate(model_mat, glm::vec3(-128, 0, -128));
         auto model_loc = program.uniform_loc("model");
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model_mat));
 
@@ -187,6 +192,10 @@ int main() {
         auto view_loc = program.uniform_loc("view");
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view_mat));
 
+        auto proj_mat = glm::mat4(1);
+        proj_mat = glm::perspective(
+            glm::radians(45.0f), window.ratio(), 0.1f, 100.0f
+        );
         auto proj_loc = program.uniform_loc("proj");
         glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj_mat));
 

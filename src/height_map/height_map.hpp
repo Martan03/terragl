@@ -4,9 +4,15 @@
 
 #include "perlin2.hpp"
 
+#include <glm/ext/quaternion_geometric.hpp>
 #include <glm/ext/vector_float3.hpp>
 
 namespace tgl::height_map {
+
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec3 normal;
+};
 
 class HeightMap {
 public:
@@ -34,10 +40,12 @@ public:
         });
     }
 
-    std::vector<glm::vec3> vertices() {
-        std::vector<glm::vec3> vertices;
+    std::vector<Vertex> vertices() {
+        std::vector<Vertex> vertices;
         for_each([&](int x, int y, int id) {
-            vertices.push_back(glm::vec3(x, _map[id], y));
+            vertices.push_back(
+                { glm::vec3(x, _map[id], y), calc_normal(x, y) }
+            );
         });
         return vertices;
     }
@@ -74,6 +82,22 @@ private:
     float _freq = 0.05, _amp = 20;
     float _lacunarity = 2, _persist = 0.5;
     std::vector<float> _map;
+
+    glm::vec3 calc_normal(int x, int y) const {
+        int xl = std::max(x - 1, 0);
+        int xr = std::min(x + 1, _width - 1);
+        int yd = std::max(y - 1, 0);
+        int yu = std::min(y + 1, _height - 1);
+
+        float hl = _map[y * _width + xl];
+        float hr = _map[y * _width + xr];
+        float hd = _map[yd * _width + x];
+        float hu = _map[yu * _width + x];
+
+        glm::vec3 dx = glm::vec3(2.0f, hr - hl, 0.0f);
+        glm::vec3 dy = glm::vec3(0.0f, hu - hd, 2.0f);
+        return glm::normalize(glm::cross(dy, dx));
+    }
 
     template<typename Func> void for_each(Func func) {
         for (int y = 0; y < _height; ++y) {
