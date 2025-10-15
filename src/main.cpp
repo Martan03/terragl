@@ -9,6 +9,7 @@
 #include "gl/vertex_array.hpp"
 #include "gl/window.hpp"
 #include "height_map/height_map.hpp"
+#include "scene.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -27,10 +28,6 @@ float last_y = -1;
 
 float delta = 0;
 float last = 0;
-
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
 
 void handle_input(tgl::gl::Window &window, tgl::gl::Camera &camera) {
     auto win = window.get();
@@ -121,6 +118,19 @@ void main() {
 
 int main() {
     glfwInit();
+    auto scene = Scene(glm::vec3(0, 5, 0));
+
+    if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
+        std::println("Failed to initialize GLAD");
+        glfwTerminate();
+        return -1;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(err_callback, nullptr);
+
+    scene.main_loop();
 
     auto window = tgl::gl::Window(800, 600, "terragl");
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
