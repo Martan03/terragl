@@ -8,12 +8,13 @@
 
 namespace tgl::gl {
 
-class Buffer : public GLResource<Buffer> {
+DEL_GLS_STRUCT(Buffer, glDeleteBuffers);
+
+class Buffer : public GLResource<del::Buffer> {
 public:
     Buffer(GLenum target) : _kind(target) { glGenBuffers(1, &_id); }
 
     void bind() const { glBindBuffer(_kind, _id); }
-    void destroy() const { glDeleteTextures(1, &_id); }
 
     /// Expects the buffer is already binded
     template<typename T>

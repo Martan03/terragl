@@ -7,7 +7,9 @@
 
 namespace tgl::gl {
 
-class Program : public GLResource<Program> {
+DEL_GL_STRUCT(Program, glDeleteProgram);
+
+class Program : public GLResource<del::Program> {
 public:
     Program(const char *ver_shader, const char *frag_shader) {
         auto vertex = Shader::vertex(ver_shader);
@@ -31,7 +33,6 @@ public:
     }
 
     void use() const { glUseProgram(_id); }
-    void destroy() const { glDeleteProgram(_id); }
 
     GLint uniform_loc(const char *name) const {
         return glGetUniformLocation(_id, name);

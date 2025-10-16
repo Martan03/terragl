@@ -6,7 +6,9 @@
 
 namespace tgl::gl {
 
-class Texture : public GLResource<Texture> {
+DEL_GLS_STRUCT(Texture, glDeleteTextures);
+
+class Texture : public GLResource<del::Texture> {
 public:
     Texture() { }
 
@@ -23,7 +25,6 @@ public:
         bind();
     }
 
-    void destroy() const { glDeleteTextures(1, &_id); }
     void param(GLenum name, GLenum val) const {
         glTexParameteri(_kind, name, val);
     }

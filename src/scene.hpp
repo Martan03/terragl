@@ -4,7 +4,9 @@
 
 #include "gl/camera.hpp"
 #include "gl/window.hpp"
+#include "terrain/terrain.hpp"
 
+#include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/glm.hpp>
 #if true
@@ -13,14 +15,27 @@
 
 class Scene {
 public:
-    Scene(glm::vec3 cam) :
-        _camera(cam, glm::vec3(0, 0, -1)), _window(800, 600, "terragl") { }
+    Scene(tgl::gl::Window win, glm::vec3 cam) :
+        _window(std::move(win)),
+        _camera(cam, glm::vec3(0, 0, -1)),
+        _terrain(256, 256) { }
 
     void main_loop() {
         setup_win();
+
+        glClearColor(0, 0.55, 1, 1);
         while (!_window.should_close()) {
             update_delta();
             handle_input();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            auto view = _camera.view();
+            auto proj = glm::mat4(1);
+            proj = glm::perspective(
+                glm::radians(450.f), _window.ratio(), 0.1f, 100.0f
+            );
+
+            _terrain.render(view, proj);
 
             _window.swap_poll();
         }
@@ -29,6 +44,7 @@ public:
 private:
     tgl::gl::Window _window;
     tgl::gl::Camera _camera;
+    tgl::terrain::Terrain _terrain;
 
     float _last_x = -1;
     float _last_y = -1;
@@ -45,7 +61,7 @@ private:
         _context = { &_window, this };
         glfwSetWindowUserPointer(_window.get(), &_context);
 
-        _window.context();
+        // _window.context();
         glfwSetFramebufferSizeCallback(_window.get(), handle_resize);
         glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetCursorPosCallback(_window.get(), handle_mouse);

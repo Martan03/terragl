@@ -6,7 +6,9 @@
 
 namespace tgl::gl {
 
-class Shader : public GLResource<Shader> {
+DEL_GL_STRUCT(Shader, glDeleteShader);
+
+class Shader : public GLResource<del::Shader> {
 public:
     Shader(const char *shader, int type) {
         _id = glCreateShader(type);

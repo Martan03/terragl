@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <stdexcept>
 
 #include <glad/gl.h>
@@ -10,6 +11,12 @@
 
 namespace tgl::gl {
 
+namespace del {
+struct Window {
+    void operator()(GLFWwindow *win) { glfwDestroyWindow(win); }
+};
+} // namespace del
+
 class Window {
 public:
     Window(int width, int height, const char *title) :
@@ -18,27 +25,22 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        _window = std::unique_ptr<GLFWwindow, del::Window>(
+            glfwCreateWindow(width, height, title, nullptr, nullptr)
+        );
         if (_window == nullptr) {
             throw std::runtime_error("Failed to create a window.");
         }
         context();
     }
 
-    ~Window() {
-        if (_window != nullptr) {
-            glfwDestroyWindow(_window);
-            _window = nullptr;
-        }
-    }
-
-    GLFWwindow *get() const { return _window; }
+    GLFWwindow *get() const { return _window.get(); }
     int width() const { return _width; }
     int height() const { return _height; }
     float ratio() const { return (float)_width / (float)_height; }
 
-    void context() const { glfwMakeContextCurrent(_window); }
-    int should_close() const { return glfwWindowShouldClose(_window); }
+    void context() const { glfwMakeContextCurrent(get()); }
+    int should_close() const { return glfwWindowShouldClose(get()); }
 
     void on_resize(int width, int height) {
         glViewport(0, 0, width, height);
@@ -47,12 +49,12 @@ public:
     }
 
     void swap_poll() const {
-        glfwSwapBuffers(_window);
+        glfwSwapBuffers(get());
         glfwPollEvents();
     }
 
 private:
-    GLFWwindow *_window = nullptr;
+    std::unique_ptr<GLFWwindow, del::Window> _window;
 
     int _width, _height;
 };

@@ -8,11 +8,36 @@
 
 namespace tgl::gl {
 
-template<typename Derived> class GLResource {
+#define DEL_GL_STRUCT(name, destroy)                                          \
+    namespace del {                                                           \
+    struct name {                                                             \
+        void operator()(GLuint id) {                                          \
+            destroy(id);                                                      \
+        }                                                                     \
+    };                                                                        \
+    }
+
+#define DEL_GLS_STRUCT(name, destroy)                                         \
+    namespace del {                                                           \
+    struct name {                                                             \
+        void operator()(GLuint id) {                                          \
+            destroy(1, &id);                                                  \
+        }                                                                     \
+    };                                                                        \
+    }
+
+template<typename Del> class GLResource {
 public:
+    GLResource(GLuint id = 0) : _id(id) { }
+
+    GLResource(const GLResource<Del> &) = delete;
+    GLResource(GLResource<Del> &&) = delete;
+    GLResource<Del> &operator=(const GLResource<Del> &) = delete;
+    GLResource<Del> &operator=(GLResource<Del> &&) = delete;
+
     ~GLResource() {
         if (_id != 0) {
-            static_cast<Derived *>(this)->destroy();
+            Del()(_id);
             _id = 0;
         }
     }

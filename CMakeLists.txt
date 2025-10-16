@@ -4,6 +4,7 @@ project(terragl VERSION 1.0.0 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c23-extensions -fsanitize=address")
 
 include(FetchContent)
 
@@ -31,4 +32,5 @@ target_link_libraries(terragl PRIVATE
     glfw
     glm
     ${OpenGL_LIBRARIES}
+    -fsanitize=address
 )
