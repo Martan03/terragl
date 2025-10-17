@@ -32,7 +32,7 @@ public:
             auto view = _camera.view();
             auto proj = glm::mat4(1);
             proj = glm::perspective(
-                glm::radians(450.f), _window.ratio(), 0.1f, 100.0f
+                glm::radians(80.0f), _window.ratio(), 0.1f, 100.0f
             );
 
             _terrain.render(view, proj);

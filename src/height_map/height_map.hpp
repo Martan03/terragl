@@ -9,6 +9,24 @@
 
 namespace tgl::height_map {
 
+struct ErosionConf {
+    // Number of droplets to simulate
+    int droplets = 100;
+    // TTL of droplet (steps it lives for)
+    int ttl = 30;
+    float inertia = 0.05f;
+    // Maximum sediment capactiy droplet can carry
+    float sediment_cap = 4;
+    float min_slope = 0.01f;
+    // Speed of depositing sediment
+    float deposit = 0.3f;
+    // Speed of eroding
+    float erode = 0.3f;
+    // Speed of droplet evaporating
+    float evaporate = 0.01f;
+    float gravity = 4.0f;
+};
+
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 normal;
@@ -39,6 +57,8 @@ public:
             _map[id] = val * _amp;
         });
     }
+
+    void hydro_erosion(ErosionConf conf = ErosionConf{});
 
     std::vector<Vertex> vertices() {
         std::vector<Vertex> vertices;
@@ -83,6 +103,19 @@ private:
     float _lacunarity = 2, _persist = 0.5;
     std::vector<float> _map;
 
+    struct Droplet {
+        float x = 0;
+        float y = 0;
+        float dir_x = 0;
+        float dir_y = 0;
+        float speed = 1;
+        float water = 1;
+        float sediment = 0;
+    };
+
+    float get_cell(int x, int y) const { return _map[x + y * _height]; }
+    void set_cell(int x, int y, float val) { _map[x + y * _height] = val; }
+
     glm::vec3 calc_normal(int x, int y) const {
         int xl = std::max(x - 1, 0);
         int xr = std::min(x + 1, _width - 1);
@@ -98,6 +131,8 @@ private:
         glm::vec3 dy = glm::vec3(0.0f, hu - hd, 2.0f);
         return glm::normalize(glm::cross(dy, dx));
     }
+
+    void sim_droplet(ErosionConf &conf, Droplet droplet);
 
     template<typename Func> void for_each(Func func) {
         for (int y = 0; y < _height; ++y) {
