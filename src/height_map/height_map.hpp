@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <vector>
 
 #include "perlin2.hpp"
@@ -11,7 +12,7 @@ namespace tgl::height_map {
 
 struct ErosionConf {
     // Number of droplets to simulate
-    int droplets = 100;
+    int droplets = 250000;
     // TTL of droplet (steps it lives for)
     int ttl = 30;
     float inertia = 0.05f;
@@ -37,8 +38,8 @@ public:
     HeightMap(
         int width,
         int height,
-        float freq = 0.05,
-        float amp = 20,
+        float freq = 0.03,
+        float amp = 25,
         float lacunarity = 2,
         float persist = 0.5
     ) :
@@ -53,7 +54,9 @@ public:
     void perlin_gen(int oct = 1) {
         auto perlin = Perlin2();
         for_each([&](int x, int y, int id) {
-            float val = perlin.noise(x * _freq, y * _freq, oct);
+            auto rx = (float)x * 0.25 * _freq;
+            auto ry = (float)y * 0.25 * _freq;
+            float val = perlin.noise(rx, ry, oct);
             _map[id] = val * _amp;
         });
     }
@@ -63,8 +66,10 @@ public:
     std::vector<Vertex> vertices() {
         std::vector<Vertex> vertices;
         for_each([&](int x, int y, int id) {
+            auto rx = (float)x * 0.25;
+            auto ry = (float)y * 0.25;
             vertices.push_back(
-                { glm::vec3(x, _map[id], y), calc_normal(x, y) }
+                { glm::vec3(rx, _map[id], ry), calc_normal(x, y) }
             );
         });
         return vertices;
@@ -113,8 +118,8 @@ private:
         float sediment = 0;
     };
 
-    float get_cell(int x, int y) const { return _map[x + y * _height]; }
-    void set_cell(int x, int y, float val) { _map[x + y * _height] = val; }
+    float get_cell(int x, int y) const { return _map[x + y * _width]; }
+    void set_cell(int x, int y, float val) { _map[x + y * _width] = val; }
 
     glm::vec3 calc_normal(int x, int y) const {
         int xl = std::max(x - 1, 0);
@@ -133,6 +138,7 @@ private:
     }
 
     void sim_droplet(ErosionConf &conf, Droplet droplet);
+    std::tuple<float, float, float> calc(Droplet droplet);
 
     template<typename Func> void for_each(Func func) {
         for (int y = 0; y < _height; ++y) {

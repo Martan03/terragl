@@ -21,61 +21,59 @@ void HeightMap::hydro_erosion(ErosionConf conf) {
 
 void HeightMap::sim_droplet(ErosionConf &conf, Droplet drop) {
     for (int ttl = conf.ttl; ttl >= 0 && drop.water >= 0.01f; --ttl) {
-        int x = (int)drop.x;
-        int y = (int)drop.y;
+        auto x = (int)drop.x;
+        auto y = (int)drop.y;
         if (x < 0 || x >= _width - 1 || y < 0 || y >= _height - 1)
             break;
 
-        float h00 = get_cell(x, y);
-        float h10 = get_cell(x + 1, y);
-        float h01 = get_cell(x, y + 1);
-        float h11 = get_cell(x + 1, y + 1);
+        auto id = x + y * _width;
+        auto fx = drop.x - x;
+        auto fy = drop.y - y;
 
-        float fx = drop.x - x;
-        float fy = drop.y - y;
-        float height = h00 * (1 - fx) * (1 - fy) + h10 * fx * (1 - fy) +
-                       h01 * (1 - fx) * fy + h11 * fx * fy;
-
-        float grad_x = (h10 - h00) * (1 - fy) + (h11 - h01) * fy;
-        float grad_y = (h01 - h00) * (1 - fx) + (h11 - h10) * fx;
-
+        auto [height, grad_x, grad_y] = calc(drop);
         drop.dir_x = drop.dir_x * conf.inertia - grad_x * (1 - conf.inertia);
         drop.dir_y = drop.dir_y * conf.inertia - grad_y * (1 - conf.inertia);
 
-        float len =
+        auto len =
             std::sqrt(drop.dir_x * drop.dir_x + drop.dir_y * drop.dir_y);
-        if (len > 0) {
+        if (len != 0) {
             drop.dir_x /= len;
             drop.dir_y /= len;
         }
 
         drop.x += drop.dir_x;
         drop.y += drop.dir_y;
-        if (drop.x < 0 || drop.x >= _width - 1 || drop.y < 0 ||
-            drop.y >= _height - 1)
+        if ((drop.dir_x == 0 && drop.dir_y == 0) || (int)drop.x < 0 ||
+            (int)drop.x >= _width - 1 || (int)drop.y < 0 ||
+            (int)drop.y >= _height - 1) {
             break;
+        }
 
-        float new_height = get_cell((int)drop.x, (int)drop.y);
-        float delta_height = new_height - height;
+        auto [new_height, _gx, _gy] = calc(drop);
+        auto delta_height = new_height - height;
 
-        float cap = std::max(
-            -delta_height * drop.speed * drop.water * conf.sediment_cap, 0.0f
+        auto cap = std::max(
+            -delta_height * drop.speed * drop.water * conf.sediment_cap, 0.01f
         );
-        if (delta_height > 0) {
-            float amount = drop.sediment;
+        if (drop.sediment > cap || delta_height > 0) {
+            auto amount = (delta_height > 0)
+                              ? std::min(delta_height, drop.sediment)
+                              : (drop.sediment - cap) * conf.deposit;
             drop.sediment -= amount;
-            set_cell((int)drop.x, (int)drop.y, new_height + amount);
+
+            _map[id] += amount * (1 - fx) * (1 - fy);
+            _map[id + 1] += amount * fx * (1 - fy);
+            _map[id + _width] += amount * (1 - fx) * fy;
+            _map[id + _width + 1] += amount * fx * fy;
         } else {
-            float cap = std::max(
-                -delta_height * drop.speed * drop.water * conf.sediment_cap,
-                0.0f
-            );
-            float amount =
+            auto amount =
                 std::min((cap - drop.sediment) * conf.erode, -delta_height);
-            if (amount > 0) {
-                drop.sediment += amount;
-                set_cell((int)drop.x, (int)drop.y, new_height - amount);
-            }
+            drop.sediment += amount;
+
+            _map[id] -= amount * (1 - fx) * (1 - fy);
+            _map[id + 1] -= amount * fx * (1 - fy);
+            _map[id + _width] -= amount * (1 - fx) * fy;
+            _map[id + _width + 1] -= amount * fx * fy;
         }
 
         drop.speed = std::sqrt(
@@ -85,6 +83,26 @@ void HeightMap::sim_droplet(ErosionConf &conf, Droplet drop) {
         );
         drop.water *= (1 - conf.evaporate);
     }
+}
+
+std::tuple<float, float, float> HeightMap::calc(Droplet drop) {
+    int x = (int)drop.x;
+    int y = (int)drop.y;
+
+    float h00 = get_cell(x, y);         // NW
+    float h10 = get_cell(x + 1, y);     // NE
+    float h01 = get_cell(x, y + 1);     // SW
+    float h11 = get_cell(x + 1, y + 1); // SE
+
+    float fx = drop.x - x;
+    float fy = drop.y - y;
+    float height = h00 * (1 - fx) * (1 - fy) + h10 * fx * (1 - fy) +
+                   h01 * (1 - fx) * fy + h11 * fx * fy;
+
+    float grad_x = (h10 - h00) * (1 - fy) + (h11 - h01) * fy;
+    float grad_y = (h01 - h00) * (1 - fx) + (h11 - h10) * fx;
+
+    return { height, grad_x, grad_y };
 }
 
 } // namespace tgl::height_map

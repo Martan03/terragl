@@ -35,6 +35,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
     _vao.bind();
 
     auto model_mat = glm::mat4(1);
+    model_mat = glm::scale(model_mat, glm::vec3(0.2, 0.2, 0.2));
     model_mat = glm::translate(model_mat, glm::vec3(-128, 0, -128));
     auto model_loc = _program.uniform_loc("model");
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model_mat));

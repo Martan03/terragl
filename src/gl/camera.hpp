@@ -15,9 +15,8 @@ enum CameraMove { FORWARD, BACKWARD, LEFT, RIGHT };
 
 class Camera {
 public:
-    Camera(glm::vec3 pos, glm::vec3 dir) {
+    Camera(glm::vec3 pos) {
         _pos = pos;
-        _dir = dir;
         update_vecs();
     }
 
@@ -44,13 +43,13 @@ public:
 
 private:
     GLfloat _yaw = -90;
-    GLfloat _pitch = 0;
+    GLfloat _pitch = -25;
 
-    GLfloat _speed = 2.5;
+    GLfloat _speed = 4;
     GLfloat _sens = 0.1;
 
     glm::vec3 _pos;
-    glm::vec3 _dir;
+    glm::vec3 _dir = glm::vec3(0, 0, -1);
     glm::vec3 _right;
     glm::vec3 _up = glm::vec3(0, 1, 0);
 
