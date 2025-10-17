@@ -13,6 +13,9 @@ namespace tgl::gl {
 
 enum CameraMove { FORWARD, BACKWARD, LEFT, RIGHT };
 
+const float SPEED = 20;
+const float SENS = 0.1;
+
 class Camera {
 public:
     Camera(glm::vec3 pos) {
@@ -41,12 +44,16 @@ public:
         update_vecs();
     }
 
+    void process_scroll(float yoffset) {
+        _speed = std::max(_speed + SPEED * yoffset * SENS, 1.0f);
+    }
+
 private:
     GLfloat _yaw = -90;
     GLfloat _pitch = -25;
 
-    GLfloat _speed = 20;
-    GLfloat _sens = 0.1;
+    GLfloat _speed = SPEED;
+    GLfloat _sens = SENS;
 
     glm::vec3 _pos;
     glm::vec3 _dir = glm::vec3(0, 0, -1);

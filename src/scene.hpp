@@ -46,6 +46,7 @@ private:
 
     float _last_x = -1;
     float _last_y = -1;
+    float _scroll_y = 0;
 
     float _delta = 0;
     float _last = 0;
@@ -63,6 +64,7 @@ private:
         glfwSetFramebufferSizeCallback(_window.get(), handle_resize);
         glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetCursorPosCallback(_window.get(), handle_mouse);
+        glfwSetScrollCallback(_window.get(), handle_scroll);
     }
 
     void update_delta() {
@@ -115,6 +117,13 @@ private:
         if (!ctx || !ctx->scene)
             return;
         ctx->scene->on_mouse(win, xpos_in, ypos_in);
+    }
+
+    static void handle_scroll(GLFWwindow *win, double xoff, double yoff) {
+        auto *ctx = Scene::get_context(win);
+        if (!ctx || !ctx->scene)
+            return;
+        ctx->scene->_camera.process_scroll(static_cast<float>(yoff));
     }
 
     static inline WindowContext *get_context(GLFWwindow *win) {
