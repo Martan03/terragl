@@ -12,7 +12,7 @@ namespace tgl::height_map {
 
 struct ErosionConf {
     // Number of droplets to simulate
-    int droplets = 70000;
+    int droplets = 150000;
     // TTL of droplet (steps it lives for)
     int ttl = 30;
     float inertia = 0.05f;
@@ -44,7 +44,9 @@ public:
         float persist = 0.5
     ) :
         _width(width),
+        _x_rate(256.0 / width),
         _height(height),
+        _y_rate(256.0 / height),
         _map(width * height),
         _freq(freq),
         _amp(amp),
@@ -54,8 +56,8 @@ public:
     void perlin_gen(int oct = 1) {
         auto perlin = Perlin2();
         for_each([&](int x, int y, int id) {
-            auto rx = (float)x * 0.5 * _freq;
-            auto ry = (float)y * 0.5 * _freq;
+            auto rx = (float)x * _x_rate * _freq;
+            auto ry = (float)y * _y_rate * _freq;
             float val = perlin.noise(rx, ry, oct);
             _map[id] = val * _amp;
         });
@@ -66,8 +68,8 @@ public:
     std::vector<Vertex> vertices() {
         std::vector<Vertex> vertices;
         for_each([&](int x, int y, int id) {
-            auto rx = (float)x * 0.5;
-            auto ry = (float)y * 0.5;
+            auto rx = (float)x * _x_rate;
+            auto ry = (float)y * _y_rate;
             vertices.push_back(
                 { glm::vec3(rx, _map[id], ry), calc_normal(x, y) }
             );
@@ -101,6 +103,7 @@ public:
 
 private:
     int _width, _height;
+    float _x_rate, _y_rate;
     float _freq = 0.05, _amp = 20;
     float _lacunarity = 2, _persist = 0.5;
     std::vector<float> _map;

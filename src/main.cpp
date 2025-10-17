@@ -45,7 +45,7 @@ int main() {
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(err_callback, nullptr);
 
-        auto scene = Scene(std::move(window), glm::vec3(0, 5, 0));
+        auto scene = Scene(std::move(window), glm::vec3(0, 25, 0));
         scene.main_loop();
     }
 

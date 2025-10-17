@@ -45,7 +45,7 @@ private:
     GLfloat _yaw = -90;
     GLfloat _pitch = -25;
 
-    GLfloat _speed = 4;
+    GLfloat _speed = 20;
     GLfloat _sens = 0.1;
 
     glm::vec3 _pos;
