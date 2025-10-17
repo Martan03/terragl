@@ -16,13 +16,23 @@ static constexpr char VERT_SHADER[]{
     0
 };
 
+static constexpr char TESC_SHADER[]{
+#embed "shader.tesc" suffix(, )
+    0
+};
+
+static constexpr char TESE_SHADER[]{
+#embed "shader.tese" suffix(, )
+    0
+};
+
 static constexpr char FRAG_SHADER[]{
 #embed "shader.frag" suffix(, )
     0
 };
 
 Terrain::Terrain(int width, int height) :
-    _program(VERT_SHADER, FRAG_SHADER),
+    _program(VERT_SHADER, TESC_SHADER, TESE_SHADER, FRAG_SHADER),
     _vbo(GL_ARRAY_BUFFER),
     _ebo(GL_ELEMENT_ARRAY_BUFFER) {
     init_buffers(width, height);
@@ -46,7 +56,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
     auto proj_loc = _program.uniform_loc("proj");
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
-    glDrawElements(GL_TRIANGLES, _triangle_cnt, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_PATCHES, _triangle_cnt, GL_UNSIGNED_INT, 0);
 }
 
 void Terrain::init_buffers(int width, int height) {
@@ -62,6 +72,8 @@ void Terrain::init_buffers(int width, int height) {
     auto indices = heights.indices();
     _triangle_cnt = indices.size();
     _ebo.set(indices);
+
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
 }
 
 void Terrain::vertex_attrib() {

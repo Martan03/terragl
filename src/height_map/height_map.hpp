@@ -12,7 +12,7 @@ namespace tgl::height_map {
 
 struct ErosionConf {
     // Number of droplets to simulate
-    int droplets = 250000;
+    int droplets = 70000;
     // TTL of droplet (steps it lives for)
     int ttl = 30;
     float inertia = 0.05f;
@@ -54,8 +54,8 @@ public:
     void perlin_gen(int oct = 1) {
         auto perlin = Perlin2();
         for_each([&](int x, int y, int id) {
-            auto rx = (float)x * 0.25 * _freq;
-            auto ry = (float)y * 0.25 * _freq;
+            auto rx = (float)x * 0.5 * _freq;
+            auto ry = (float)y * 0.5 * _freq;
             float val = perlin.noise(rx, ry, oct);
             _map[id] = val * _amp;
         });
@@ -66,8 +66,8 @@ public:
     std::vector<Vertex> vertices() {
         std::vector<Vertex> vertices;
         for_each([&](int x, int y, int id) {
-            auto rx = (float)x * 0.25;
-            auto ry = (float)y * 0.25;
+            auto rx = (float)x * 0.5;
+            auto ry = (float)y * 0.5;
             vertices.push_back(
                 { glm::vec3(rx, _map[id], ry), calc_normal(x, y) }
             );
@@ -82,12 +82,9 @@ public:
                 int id = y * _width + x;
 
                 indices.push_back(id);
-                indices.push_back(id + 1);
                 indices.push_back(id + _width);
-
-                indices.push_back(id + 1);
                 indices.push_back(id + _width + 1);
-                indices.push_back(id + _width);
+                indices.push_back(id + 1);
             }
         }
         return indices;

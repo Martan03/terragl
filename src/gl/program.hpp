@@ -12,16 +12,44 @@ DEL_GL_STRUCT(Program, glDeleteProgram);
 class Program : public GLResource<del::Program> {
 public:
     Program(const char *ver_shader, const char *frag_shader) {
-        auto vertex = Shader::vertex(ver_shader);
-        vertex.compile();
-
-        auto fragment = Shader::fragment(frag_shader);
-        fragment.compile();
-
         _id = glCreateProgram();
-        glAttachShader(_id, vertex.get());
-        glAttachShader(_id, fragment.get());
 
+        link_shader(ver_shader, GL_VERTEX_SHADER);
+        link_shader(frag_shader, GL_FRAGMENT_SHADER);
+
+        link_program();
+    }
+
+    Program(
+        const char *ver_shader,
+        const char *tesc_shader,
+        const char *tese_shader,
+        const char *frag_shader
+    ) {
+        _id = glCreateProgram();
+
+        link_shader(ver_shader, GL_VERTEX_SHADER);
+        link_shader(tesc_shader, GL_TESS_CONTROL_SHADER);
+        link_shader(tese_shader, GL_TESS_EVALUATION_SHADER);
+        link_shader(frag_shader, GL_FRAGMENT_SHADER);
+
+        link_program();
+    }
+
+    void use() const { glUseProgram(_id); }
+
+    GLint uniform_loc(const char *name) const {
+        return glGetUniformLocation(_id, name);
+    }
+
+private:
+    void link_shader(const char *data, int type) {
+        auto shader = Shader(data, type);
+        shader.compile();
+        glAttachShader(_id, shader.get());
+    }
+
+    void link_program() {
         glLinkProgram(_id);
         check_status(
             glGetProgramiv,
@@ -30,12 +58,6 @@ public:
             GL_LINK_STATUS,
             "Failed to link program"
         );
-    }
-
-    void use() const { glUseProgram(_id); }
-
-    GLint uniform_loc(const char *name) const {
-        return glGetUniformLocation(_id, name);
     }
 };
 

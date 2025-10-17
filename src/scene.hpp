@@ -16,7 +16,7 @@
 class Scene {
 public:
     Scene(tgl::gl::Window win, glm::vec3 cam) :
-        _window(std::move(win)), _camera(cam), _terrain(1024, 1024) { }
+        _window(std::move(win)), _camera(cam), _terrain(512, 512) { }
 
     void main_loop() {
         setup_win();
