@@ -15,6 +15,7 @@ enum CameraMove { FORWARD, BACKWARD, LEFT, RIGHT };
 
 const float SPEED = 20;
 const float SENS = 0.1;
+const float CONT_SENS = 1;
 
 class Camera {
 public:
@@ -25,23 +26,21 @@ public:
 
     glm::mat4 view() { return glm::lookAt(_pos, _pos + _dir, _up); }
 
-    void process_key(CameraMove move, float delta) {
+    void process_move(glm::vec2 move, float delta) {
+        move = glm::normalize(move);
         float velocity = _speed * delta;
-        if (move == FORWARD)
-            _pos += _dir * velocity;
-        if (move == BACKWARD)
-            _pos -= _dir * velocity;
-        if (move == LEFT)
-            _pos -= glm::normalize(glm::cross(_dir, _up)) * velocity;
-        if (move == RIGHT)
-            _pos += glm::normalize(glm::cross(_dir, _up)) * velocity;
+        if (move.y != 0)
+            _pos += _dir * move.y * velocity;
+        if (move.x != 0)
+            _pos += glm::normalize(glm::cross(_dir, _up)) * move.x * velocity;
     }
 
     void process_mouse(float xoffset, float yoffset) {
-        _yaw += xoffset * _sens;
-        _pitch += yoffset * _sens;
-        _pitch = std::clamp(_pitch, -89.0f, 89.0f);
-        update_vecs();
+        process_look(xoffset, yoffset, SENS);
+    }
+
+    void process_controller(float xoffset, float yoffset) {
+        process_look(xoffset, yoffset, CONT_SENS);
     }
 
     void process_scroll(float yoffset) {
@@ -53,12 +52,18 @@ private:
     GLfloat _pitch = -25;
 
     GLfloat _speed = SPEED;
-    GLfloat _sens = SENS;
 
     glm::vec3 _pos;
     glm::vec3 _dir = glm::vec3(0, 0, -1);
     glm::vec3 _right;
     glm::vec3 _up = glm::vec3(0, 1, 0);
+
+    void process_look(float xoffset, float yoffset, float sens) {
+        _yaw += xoffset * sens;
+        _pitch += yoffset * sens;
+        _pitch = std::clamp(_pitch, -89.0f, 89.0f);
+        update_vecs();
+    }
 
     void update_vecs() {
         _dir.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
