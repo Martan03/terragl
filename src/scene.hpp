@@ -142,6 +142,11 @@ private:
             auto look_y = -get(state, GLFW_GAMEPAD_AXIS_RIGHT_Y);
             if (look_x != 0 || look_y != 0)
                 _camera.process_controller(look_x, look_y);
+
+            auto speed = get(state, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) + 1;
+            speed -= get(state, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER) + 1;
+            if (speed != 0)
+                _camera.process_scroll(speed, _delta);
         }
     }
 

@@ -43,8 +43,8 @@ public:
         process_look(xoffset, yoffset, CONT_SENS);
     }
 
-    void process_scroll(float yoffset) {
-        _speed = std::max(_speed + SPEED * yoffset * SENS, 1.0f);
+    void process_scroll(float yoffset, float sens = SENS) {
+        _speed = std::max(_speed + SPEED * yoffset * sens, 1.0f);
     }
 
 private:
