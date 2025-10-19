@@ -15,10 +15,10 @@ void main() {
     tPos[gl_InvocationID] = vPos[gl_InvocationID];
     tNorm[gl_InvocationID] = vNorm[gl_InvocationID];
 
-    if(gl_InvocationID == 0)
+    if (gl_InvocationID == 0)
     {
         const int MIN_TESS_LEVEL = 2;
-        const int MAX_TESS_LEVEL = 16;
+        const int MAX_TESS_LEVEL = 8;
         const float MIN_DISTANCE = 20.0;
         const float MAX_DISTANCE = 100.0;
 

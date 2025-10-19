@@ -8,7 +8,7 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 
 const float minRockH = 5.0;
-const float maxRockH = 15.0;
+const float maxRockH = 12.0;
 const float grassBlend = 0.2;
 
 void main() {
@@ -21,13 +21,13 @@ void main() {
     vec3 diffuse = diff * lightColor;
 
     vec3 grassColor = vec3(0, 0.5, 0);
-    vec3 rockColor  = vec3(0.15, 0.2, 0.2);
+    vec3 rockColor = vec3(0.15, 0.2, 0.2);
 
     float heightPer = (fragPos.y - minRockH) / (maxRockH - minRockH);
     float heightFactor = clamp(heightPer, 0.0, 1.0);
 
     float slope = 1 - dot(norm, vec3(0, 1, 0));
-    float factor = clamp(slope * 4 + heightFactor * 2, 0.0, 1.0);
+    float factor = clamp(slope * 8 + heightFactor * 2, 0.0, 1.0);
     float blend = smoothstep(0.5 - grassBlend, 0.5 + grassBlend, factor);
 
     vec3 color = mix(grassColor, rockColor, blend);

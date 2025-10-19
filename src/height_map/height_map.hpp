@@ -12,7 +12,7 @@ namespace tgl::height_map {
 
 struct ErosionConf {
     // Number of droplets to simulate
-    int droplets = 150000;
+    int droplets = 250000;
     // TTL of droplet (steps it lives for)
     int ttl = 30;
     float inertia = 0.05f;
