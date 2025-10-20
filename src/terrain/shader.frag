@@ -9,7 +9,7 @@ uniform vec3 lightColor;
 
 const float minRockH = 5.0;
 const float maxRockH = 12.0;
-const float grassBlend = 0.2;
+const float grassBlend = 0;
 
 void main() {
     vec3 ambient = 0.2 * lightColor;
