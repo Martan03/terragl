@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <stdexcept>
 
 #include <glad/gl.h>
 
@@ -19,20 +18,7 @@ struct Window {
 
 class Window {
 public:
-    Window(int width, int height, const char *title) :
-        _width(width), _height(height) {
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        _window = std::unique_ptr<GLFWwindow, del::Window>(
-            glfwCreateWindow(width, height, title, nullptr, nullptr)
-        );
-        if (_window == nullptr) {
-            throw std::runtime_error("Failed to create a window.");
-        }
-        context();
-    }
+    Window(int width, int height, const char *title);
 
     GLFWwindow *get() const { return _window.get(); }
     int width() const { return _width; }
@@ -42,21 +28,15 @@ public:
     void context() const { glfwMakeContextCurrent(get()); }
     int should_close() const { return glfwWindowShouldClose(get()); }
 
-    void on_resize(int width, int height) {
-        glViewport(0, 0, width, height);
-        _width = width;
-        _height = height;
-    }
-
-    void swap_poll() const {
-        glfwSwapBuffers(get());
-        glfwPollEvents();
-    }
+    void on_resize(int width, int height);
+    void swap_poll() const;
 
 private:
     std::unique_ptr<GLFWwindow, del::Window> _window;
 
     int _width, _height;
+
+    void glfwInit(int major, int minor);
 };
 
 } // namespace tgl::gl

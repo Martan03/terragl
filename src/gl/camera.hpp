@@ -19,21 +19,11 @@ const float CONT_SENS = 1;
 
 class Camera {
 public:
-    Camera(glm::vec3 pos) {
-        _pos = pos;
-        update_vecs();
-    }
+    Camera(glm::vec3 pos);
 
     glm::mat4 view() { return glm::lookAt(_pos, _pos + _dir, _up); }
 
-    void process_move(glm::vec2 move, float delta) {
-        move = glm::normalize(move);
-        float velocity = _speed * delta;
-        if (move.y != 0)
-            _pos += _dir * move.y * velocity;
-        if (move.x != 0)
-            _pos += glm::normalize(glm::cross(_dir, _up)) * move.x * velocity;
-    }
+    void process_move(glm::vec2 move, float delta);
 
     void process_mouse(float xoffset, float yoffset) {
         process_look(xoffset, yoffset, SENS);
@@ -58,22 +48,8 @@ private:
     glm::vec3 _right;
     glm::vec3 _up = glm::vec3(0, 1, 0);
 
-    void process_look(float xoffset, float yoffset, float sens) {
-        _yaw += xoffset * sens;
-        _pitch += yoffset * sens;
-        _pitch = std::clamp(_pitch, -89.0f, 89.0f);
-        update_vecs();
-    }
-
-    void update_vecs() {
-        _dir.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-        _dir.y = sin(glm::radians(_pitch));
-        _dir.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-        _dir = glm::normalize(_dir);
-
-        _right = glm::normalize(glm::cross(_dir, glm::vec3(0, 1, 0)));
-        _up = glm::normalize(glm::cross(_right, _dir));
-    }
+    void process_look(float xoffset, float yoffset, float sens);
+    void update_vecs();
 };
 
 } // namespace tgl::gl
