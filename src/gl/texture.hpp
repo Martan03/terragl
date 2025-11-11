@@ -10,11 +10,13 @@ DEL_GLS_STRUCT(Texture, glDeleteTextures);
 
 class Texture : public GLResource<del::Texture> {
 public:
-    Texture() { }
+    Texture() { glGenTextures(1, &_id); }
 
     Texture(GLenum kind, GLenum unit) : _kind(kind), _unit(unit) {
         glGenTextures(1, &_id);
     }
+
+    GLenum kind() { return _kind; };
 
     void bind() const {
         glActiveTexture(_unit);
