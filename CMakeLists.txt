@@ -31,7 +31,7 @@ glad_add_library(glad_gl_core_46 REPRODUCIBLE API gl:core=4.6)
 target_link_libraries(terragl PRIVATE
     glad_gl_core_46
     glfw
-    glm
+    glm::glm
     Freetype::Freetype
     ${OpenGL_LIBRARIES}
     -fsanitize=address
