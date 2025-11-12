@@ -31,6 +31,7 @@ public:
         setup_win();
 
         auto text_renderer = tgl::text::TextRenderer();
+
         auto text = tgl::text::Text("Test of text", 10, 20);
         text.compile(text_renderer.font());
 

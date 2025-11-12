@@ -11,7 +11,12 @@ namespace tgl::text {
 
 class Text {
 public:
-    Text(std::string text, float x, float y);
+    Text(
+        std::string text,
+        float x,
+        float y,
+        glm::vec3 color = glm::vec3(1, 1, 1)
+    );
 
     void compile(Font &font);
 
@@ -22,6 +27,7 @@ private:
     gl::Buffer _vbo;
 
     std::string _text;
+    glm::vec3 _color;
     float _x;
     float _y;
 

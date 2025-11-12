@@ -14,15 +14,15 @@ static constexpr char FRAG_SHADER[]{
     0
 };
 
-Text::Text(std::string text, float x, float y) :
-    _vbo(GL_ARRAY_BUFFER), _text(text), _x(x), _y(y) {
+Text::Text(std::string text, float x, float y, glm::vec3 color) :
+    _vbo(GL_ARRAY_BUFFER), _text(text), _x(x), _y(y), _color(color) {
     init_buffers();
 }
 
 void Text::render(gl::Program &program, Font &font) {
     _vao.bind();
-    auto tex_loc = program.uniform_loc("text");
-    glUniform1i(tex_loc, 0);
+    auto color_loc = program.uniform_loc("color");
+    glUniform3f(color_loc, _color.r, _color.g, _color.b);
     font._atlas.bind();
     glDrawArrays(GL_TRIANGLES, 0, _text.size() * 6);
 }

@@ -26,9 +26,6 @@ void TextRenderer::render(gl::Window &win, Text &text) {
     auto proj_loc = _program.uniform_loc("proj");
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
-    auto color_loc = _program.uniform_loc("color");
-    glUniform3f(color_loc, 1, 1, 1);
-
     text.render(_program, _font);
 }
 
