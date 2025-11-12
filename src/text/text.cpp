@@ -38,11 +38,11 @@ void Text::compile(Font &font) {
 
         float u1 = ch.uv.x + ch.uv_size.x;
         float v1 = ch.uv.y + ch.uv_size.y;
-        vert.insert(vert.end(), { x, y + ch.size.y, ch.uv.x, v1 });
         vert.insert(vert.end(), { x, y, ch.uv.x, ch.uv.y });
-        vert.insert(vert.end(), { x + ch.size.x, y, u1, ch.uv.y });
         vert.insert(vert.end(), { x, y + ch.size.y, ch.uv.x, v1 });
         vert.insert(vert.end(), { x + ch.size.x, y, u1, ch.uv.y });
+        vert.insert(vert.end(), { x + ch.size.x, y, u1, ch.uv.y });
+        vert.insert(vert.end(), { x, y + ch.size.y, ch.uv.x, v1 });
         vert.insert(vert.end(), { x + ch.size.x, y + ch.size.y, u1, v1 });
         xpos += (ch.advance >> 6);
     }

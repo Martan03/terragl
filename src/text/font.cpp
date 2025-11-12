@@ -55,7 +55,6 @@ void Font::generate(FT_Face face) {
 
     int x = 0;
     for (unsigned char c = 0; c < 128; ++c) {
-        // TODO: log it at least or throw exception
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
             continue;
 
