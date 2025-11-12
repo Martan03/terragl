@@ -31,7 +31,7 @@ public:
         setup_win();
 
         auto text_renderer = tgl::text::TextRenderer();
-        auto text = tgl::text::Text("Test of text", 10, 10);
+        auto text = tgl::text::Text("Test of text", 10, 20);
         text.compile(text_renderer.font());
 
         glClearColor(0, 0.55, 1, 1);
@@ -41,13 +41,13 @@ public:
             handle_controllers();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // auto view = _camera.view();
-            // auto proj = glm::mat4(1);
-            // proj = glm::perspective(
-            //     glm::radians(80.0f), _window.ratio(), 0.1f, 500.0f
-            // );
+            auto view = _camera.view();
+            auto proj = glm::mat4(1);
+            proj = glm::perspective(
+                glm::radians(80.0f), _window.ratio(), 0.1f, 500.0f
+            );
 
-            // _terrain.render(view, proj);
+            _terrain.render(view, proj);
             text_renderer.render(_window, text);
 
             _window.swap_poll();

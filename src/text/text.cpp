@@ -34,8 +34,7 @@ void Text::compile(Font &font) {
     for (char c : _text) {
         const auto &ch = font._chars[c];
         float x = xpos + ch.bearing.x;
-        // float y = _y - ch.bearing.y;
-        float y = _y + (ch.size.y - ch.bearing.y);
+        float y = _y - ch.bearing.y;
 
         float u1 = ch.uv.x + ch.uv_size.x;
         float v1 = ch.uv.y + ch.uv_size.y;

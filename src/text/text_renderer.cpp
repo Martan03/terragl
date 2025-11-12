@@ -17,7 +17,7 @@ static constexpr char FRAG_SHADER[]{
 
 TextRenderer::TextRenderer() :
     _program(VERT_SHADER, FRAG_SHADER),
-    _font("/mnt/hdd/school/1mit/terragl/build/NotoSansMono-Regular.ttf") { }
+    _font("./NotoSansMono-Regular.ttf") { }
 
 void TextRenderer::render(gl::Window &win, Text &text) {
     _program.use();
