@@ -16,7 +16,7 @@ struct Character {
     glm::vec2 uv_size;
     glm::ivec2 size;
     glm::ivec2 bearing;
-    unsigned int advance;
+    FT_Pos advance;
 };
 
 class Font {

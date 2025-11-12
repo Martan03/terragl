@@ -80,7 +80,8 @@ void Font::generate(FT_Face face) {
             glm::vec2(u0, v0),
             glm::vec2(u1 - u0, v1 - v0),
             glm::ivec2(bitmap.width, bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top)
+            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            face->glyph->advance.x
         };
         x += bitmap.width;
     }

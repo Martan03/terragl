@@ -15,7 +15,9 @@ static constexpr char FRAG_SHADER[]{
 };
 
 Text::Text(std::string text, float x, float y) :
-    _vbo(GL_ARRAY_BUFFER), _text(text), _x(x), _y(y) { }
+    _vbo(GL_ARRAY_BUFFER), _text(text), _x(x), _y(y) {
+    init_buffers();
+}
 
 void Text::render(gl::Program &program, Font &font) {
     _vao.bind();
@@ -26,45 +28,28 @@ void Text::render(gl::Program &program, Font &font) {
 }
 
 void Text::compile(Font &font) {
-    std::vector<float> vertices;
-    vertices.reserve(_text.size() * 6 * 4);
+    std::vector<float> vert;
+    vert.reserve(_text.size() * 6 * 4);
+    float xpos = _x;
     for (char c : _text) {
         const auto &ch = font._chars[c];
-        float x = _x + ch.bearing.x;
-        float y = _y - (ch.size.y - ch.bearing.y);
+        float x = xpos + ch.bearing.x;
+        // float y = _y - ch.bearing.y;
+        float y = _y + (ch.size.y - ch.bearing.y);
 
         float u1 = ch.uv.x + ch.uv_size.x;
         float v1 = ch.uv.y + ch.uv_size.y;
-        float quad[] = { x,
-                         y + ch.size.y,
-                         ch.uv.x,
-                         v1,
-                         x,
-                         y,
-                         ch.uv.x,
-                         ch.uv.y,
-                         x + ch.size.x,
-                         y,
-                         u1,
-                         ch.uv.y,
-                         x,
-                         y + ch.size.y,
-                         ch.uv.x,
-                         v1,
-                         x + ch.size.x,
-                         y,
-                         u1,
-                         ch.uv.y,
-                         x + ch.size.x,
-                         y + ch.size.y,
-                         u1,
-                         v1 };
-        vertices.insert(vertices.end(), std::begin(quad), std::end(quad));
-        x += ch.size.x + ch.bearing.x;
+        vert.insert(vert.end(), { x, y + ch.size.y, ch.uv.x, v1 });
+        vert.insert(vert.end(), { x, y, ch.uv.x, ch.uv.y });
+        vert.insert(vert.end(), { x + ch.size.x, y, u1, ch.uv.y });
+        vert.insert(vert.end(), { x, y + ch.size.y, ch.uv.x, v1 });
+        vert.insert(vert.end(), { x + ch.size.x, y, u1, ch.uv.y });
+        vert.insert(vert.end(), { x + ch.size.x, y + ch.size.y, u1, v1 });
+        xpos += (ch.advance >> 6);
     }
 
     _vbo.bind();
-    _vbo.set(vertices);
+    _vbo.set(vert);
 }
 
 void Text::init_buffers() {

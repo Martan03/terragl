@@ -33,7 +33,7 @@ public:
         auto text_renderer = tgl::text::TextRenderer();
         auto text = tgl::text::Text("Test of text", 10, 10);
         text.compile(text_renderer.font());
-        
+
         glClearColor(0, 0.55, 1, 1);
         while (!_window.should_close()) {
             update_delta();
