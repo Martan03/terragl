@@ -1,12 +1,16 @@
 #pragma once
 
 #include <print>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <glad/gl.h>
 
 #include "gl/camera.hpp"
 #include "gl/window.hpp"
+#include "state/game.hpp"
+#include "state/menu.hpp"
+#include "state/state.hpp"
 #include "terrain/terrain.hpp"
 #include "text/text.hpp"
 #include "text/text_renderer.hpp"
@@ -18,6 +22,19 @@
 #if true
 #include <GLFW/glfw3.h>
 #endif
+
+namespace tgl::state {
+class State;
+class Game;
+class Menu;
+} // namespace tgl::state
+
+namespace tgl {
+
+enum StateType {
+    Game,
+    Menu,
+};
 
 class Scene {
 public:
@@ -62,6 +79,9 @@ private:
     tgl::gl::Camera _camera;
     tgl::terrain::Terrain _terrain;
 
+    std::unordered_map<StateType, std::unique_ptr<tgl::state::State>> _states;
+    tgl::state::State *_active = nullptr;
+
     std::unordered_set<int> _controllers;
     float _last_x = -1;
     float _last_y = -1;
@@ -85,6 +105,15 @@ private:
         glfwSetCursorPosCallback(_window.get(), handle_mouse);
         glfwSetScrollCallback(_window.get(), handle_scroll);
         glfwSetJoystickCallback(joystick_callback);
+    }
+
+    void create_states() {
+        _states.emplace(
+            StateType::Game, std::make_unique<state::Game>(*this, _window)
+        );
+        _states.emplace(
+            StateType::Menu, std::make_unique<state::Menu>(*this, _window)
+        );
     }
 
     void update_delta() {
@@ -203,3 +232,5 @@ private:
         return static_cast<WindowContext *>(glfwGetWindowUserPointer(win));
     }
 };
+
+} // namespace tgl
