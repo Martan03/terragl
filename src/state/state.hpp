@@ -1,14 +1,12 @@
 #pragma once
 
 #include "../gl/window.hpp"
-#include "../scene.hpp"
 
 namespace tgl {
 class Scene;
 }
 
 namespace tgl::state {
-
 
 class State {
 public:

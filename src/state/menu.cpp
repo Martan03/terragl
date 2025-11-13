@@ -1,7 +1,5 @@
 #include "menu.hpp"
 
-#include "state.hpp"
-
 namespace tgl::state {
 
 Menu::Menu(Scene &scene, gl::Window &window) : State(scene, window) { }

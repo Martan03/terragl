@@ -23,12 +23,6 @@
 #include <GLFW/glfw3.h>
 #endif
 
-namespace tgl::state {
-class State;
-class Game;
-class Menu;
-} // namespace tgl::state
-
 namespace tgl {
 
 enum StateType {
