@@ -4,7 +4,7 @@
 #include <glad/gl.h>
 
 #include "gl/window.hpp"
-#include "scene.hpp"
+#include "scene/scene.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -47,7 +47,7 @@ int main() {
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(err_callback, nullptr);
 
-        auto scene = Scene(std::move(window), glm::vec3(0, 25, 0));
+        auto scene = tgl::scene::Scene(std::move(window), glm::vec3(0, 25, 0));
         scene.main_loop();
     }
 

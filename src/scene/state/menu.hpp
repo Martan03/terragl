@@ -2,15 +2,15 @@
 
 #include "state.hpp"
 
-namespace tgl::state {
+namespace tgl::scene::state {
 
 class Menu : public State {
 public:
-    Menu(Scene &scene, gl::Window &window);
+    Menu(Scene &scene);
 
     void handle_input(float delta) override;
 
     void render() override;
 };
 
-} // namespace tgl::state
+} // namespace tgl::scene::state

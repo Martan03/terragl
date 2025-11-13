@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(glad)
 
 add_executable(terragl)
 
-file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp src/**/*.cpp)
+file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp src/**/*.cpp src/**/**/*.cpp)
 target_sources(terragl PRIVATE ${SRC_FILES})
 
 find_package(glfw3 REQUIRED)
