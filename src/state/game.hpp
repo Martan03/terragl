@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../gl/camera.hpp"
 #include "../terrain/terrain.hpp"
 #include "state.hpp"
 
