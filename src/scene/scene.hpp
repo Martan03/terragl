@@ -8,6 +8,8 @@
 #include "../gl/camera.hpp"
 #include "../gl/window.hpp"
 #include "../terrain/terrain.hpp"
+#include "../text/text.hpp"
+#include "../text/text_renderer.hpp"
 #include "state/state.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -51,6 +53,12 @@ private:
 
     float _delta = 0;
     float _last = 0;
+
+    text::TextRenderer _text_renderer;
+
+    text::Text _fps = text::Text("0 FPS", 10, 20);
+    int _frames = 0;
+    float _last_fps = 0;
 
     void setup_win();
 

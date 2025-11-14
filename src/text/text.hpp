@@ -22,6 +22,8 @@ public:
 
     void render(gl::Program &program, Font &font);
 
+    void set_text(std::string text) { _text = text; }
+
 private:
     gl::VertexArray _vao;
     gl::Buffer _vbo;

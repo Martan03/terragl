@@ -62,7 +62,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
 void Terrain::init_buffers(int width, int height) {
     auto heights = height_map::HeightMap(width, height);
     heights.perlin_gen(5);
-    // heights.hydro_erosion();
+    heights.hydro_erosion();
     _vao.bind();
 
     _vbo.bind();

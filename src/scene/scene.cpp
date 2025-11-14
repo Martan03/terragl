@@ -1,5 +1,7 @@
 #include "scene.hpp"
 
+#include <format>
+
 #include <GLFW/glfw3.h>
 
 #include "state/game.hpp"
@@ -29,6 +31,7 @@ void Scene::main_loop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         _active->render();
+        _text_renderer.render(_window, _fps);
 
         _window.swap_poll();
     }
@@ -61,6 +64,15 @@ void Scene::update_delta() {
     float current = static_cast<float>(glfwGetTime());
     _delta = current - _last;
     _last = current;
+
+    ++_frames;
+    if (current - _last_fps >= 1.0) {
+        int fps = _frames / (current - _last_fps);
+        _fps.set_text(std::format("{} FPS", fps));
+        _fps.compile(_text_renderer.font());
+        _last_fps = current;
+        _frames = 0;
+    }
 }
 
 void Scene::handle_resize(GLFWwindow *win, int width, int height) {
