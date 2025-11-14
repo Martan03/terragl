@@ -8,9 +8,9 @@ class Menu : public State {
 public:
     Menu(Scene &scene);
 
-    void handle_input(float delta) override;
-
     void render() override;
+    
+    void handle_key(int key, int scancode, int action, int mods) override;
 };
 
 } // namespace tgl::scene::state

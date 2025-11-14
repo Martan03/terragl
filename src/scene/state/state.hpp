@@ -13,7 +13,8 @@ public:
 
     virtual void render() = 0;
 
-    virtual void handle_input(float delta) = 0;
+    virtual void handle_key(int key, int scancode, int action, int mods) { };
+    virtual void handle_input(float delta) { };
 
     virtual void handle_mouse(float xpos, float ypos) { };
     virtual void handle_click(int button, int action, int mods) { };

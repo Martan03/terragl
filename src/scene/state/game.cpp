@@ -23,8 +23,6 @@ void Game::render() {
 void Game::handle_input(float delta) {
     auto win = _scene.window().get();
     auto move = glm::vec2(0, 0);
-    if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        _scene.set_state(StateType::Menu);
 
     if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS)
         move.y += 1;
@@ -37,6 +35,11 @@ void Game::handle_input(float delta) {
 
     if (move.y != 0 || move.x != 0)
         _camera.process_move(move, delta);
+}
+
+void Game::handle_key(int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        _scene.set_state(StateType::Menu);
 }
 
 void Game::handle_mouse(float xpos, float ypos) {

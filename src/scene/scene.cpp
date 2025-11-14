@@ -1,5 +1,7 @@
 #include "scene.hpp"
 
+#include <GLFW/glfw3.h>
+
 #include "state/game.hpp"
 #include "state/menu.hpp"
 
@@ -51,6 +53,7 @@ void Scene::setup_win() {
     glfwSetFramebufferSizeCallback(_window.get(), handle_resize);
     glfwSetCursorPosCallback(_window.get(), handle_mouse);
     glfwSetScrollCallback(_window.get(), handle_scroll);
+    glfwSetKeyCallback(_window.get(), handle_key);
     glfwSetJoystickCallback(joystick_callback);
 }
 
@@ -79,6 +82,15 @@ void Scene::handle_scroll(GLFWwindow *win, double xoff, double yoff) {
     if (!ctx)
         return;
     ctx->_active->handle_scroll(xoff, yoff);
+}
+
+void Scene::handle_key(
+    GLFWwindow *win, int key, int scancode, int action, int mods
+) {
+    auto *ctx = Scene::get_context(win);
+    if (!ctx)
+        return;
+    ctx->_active->handle_key(key, scancode, action, mods);
 }
 
 void Scene::check_controllers() {

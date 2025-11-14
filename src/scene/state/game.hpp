@@ -15,6 +15,7 @@ public:
     void render() override;
 
     void handle_input(float delta) override;
+    void handle_key(int key, int scancode, int action, int mods) override;
 
     void handle_mouse(float xpos, float ypos) override;
     void handle_scroll(float xoff, float yoff) override;

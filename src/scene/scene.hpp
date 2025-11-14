@@ -34,6 +34,7 @@ public:
     gl::Window &window() { return _window; }
     std::unordered_set<int> &controllers() { return _controllers; }
 
+    state::State *state(StateType type) { return _states.at(type).get(); }
     void set_state(StateType type);
 
 private:
@@ -59,6 +60,10 @@ private:
 
     static void handle_mouse(GLFWwindow *win, double xpos_in, double ypos_in);
     static void handle_scroll(GLFWwindow *win, double xoff, double yoff);
+
+    static void handle_key(
+        GLFWwindow *win, int key, int scancode, int action, int mods
+    );
 
     void check_controllers();
     static void joystick_callback(int jid, int event);
