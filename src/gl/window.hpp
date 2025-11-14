@@ -4,6 +4,9 @@
 
 #include <glad/gl.h>
 
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/glm.hpp>
+
 #if true
 #include <GLFW/glfw3.h>
 #endif
@@ -24,6 +27,10 @@ public:
     int width() const { return _width; }
     int height() const { return _height; }
     float ratio() const { return (float)_width / (float)_height; }
+
+    glm::mat4 ortho() {
+        return glm::ortho(0.0f, float(_width), float(_height), 0.0f);
+    }
 
     void context() const { glfwMakeContextCurrent(get()); }
     int should_close() const { return glfwWindowShouldClose(get()); }

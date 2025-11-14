@@ -13,6 +13,8 @@ public:
 
     virtual void render() = 0;
 
+    virtual void resize() { };
+
     virtual void handle_key(int key, int scancode, int action, int mods) { };
     virtual void handle_input(float delta) { };
 

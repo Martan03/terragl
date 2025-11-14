@@ -47,6 +47,7 @@ void Scene::set_state(StateType type) {
         break;
     }
     _active = _states.at(type).get();
+    _active->resize();
 }
 
 void Scene::setup_win() {
@@ -80,6 +81,7 @@ void Scene::handle_resize(GLFWwindow *win, int width, int height) {
     if (!ctx)
         return;
     ctx->window().on_resize(width, height);
+    ctx->_active->resize();
 }
 
 void Scene::handle_mouse(GLFWwindow *win, double xpos_in, double ypos_in) {
