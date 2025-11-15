@@ -3,7 +3,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace tgl::text {
+namespace tgl::gui {
 
 static constexpr char VERT_SHADER[]{
 #embed "shader.vert" suffix(, )
@@ -16,8 +16,7 @@ static constexpr char FRAG_SHADER[]{
 };
 
 TextRenderer::TextRenderer() :
-    _program(VERT_SHADER, FRAG_SHADER),
-    _font("./NotoSansMono-Regular.ttf") { }
+    _program(VERT_SHADER, FRAG_SHADER), _font("./NotoSansMono-Regular.ttf") { }
 
 void TextRenderer::render(gl::Window &win, Text &text) {
     _program.use();
@@ -29,4 +28,4 @@ void TextRenderer::render(gl::Window &win, Text &text) {
     text.render(_program, _font);
 }
 
-} // namespace tgl::text
+} // namespace tgl::gui

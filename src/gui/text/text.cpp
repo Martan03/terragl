@@ -2,21 +2,30 @@
 
 #include "glad/gl.h"
 
-namespace tgl::text {
+namespace tgl::gui {
 
-static constexpr char VERT_SHADER[]{
-#embed "shader.vert" suffix(, )
-    0
-};
-
-static constexpr char FRAG_SHADER[]{
-#embed "shader.frag" suffix(, )
-    0
-};
-
-Text::Text(std::string text, float x, float y, glm::vec3 color) :
-    _vbo(GL_ARRAY_BUFFER), _text(text), _x(x), _y(y), _color(color) {
+Text::Text(
+    glm::vec2 pos,
+    glm::vec2 size,
+    TextSystem &sys,
+    std::string text,
+    glm::vec3 color
+) :
+    Widget(pos, size),
+    _sys(sys),
+    _vbo(GL_ARRAY_BUFFER),
+    _text(text),
+    _color(color) {
     init_buffers();
+}
+
+void Text::render() {
+    _sys.program().use();
+    glUniform3f(_sys.col_loc(), _color.r, _color.g, _color.b);
+
+    _vao.bind();
+    _sys.font()._atlas.bind();
+    glDrawArrays(GL_TRIANGLES, 0, _text.size() * 6);
 }
 
 void Text::render(gl::Program &program, Font &font) {
@@ -58,4 +67,4 @@ void Text::init_buffers() {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 }
 
-} // namespace tgl::text
+} // namespace tgl::gui

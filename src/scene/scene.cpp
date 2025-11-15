@@ -31,7 +31,7 @@ void Scene::main_loop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         _active->render();
-        _text_renderer.render(_window, _fps);
+        // _text_renderer.render(_window, _fps);
 
         _window.swap_poll();
     }
@@ -70,7 +70,7 @@ void Scene::update_delta() {
     if (current - _last_fps >= 1.0) {
         int fps = _frames / (current - _last_fps);
         _fps.set_text(std::format("{} FPS", fps));
-        _fps.compile(_text_renderer.font());
+        _fps.compile(_text_sys.font());
         _last_fps = current;
         _frames = 0;
     }

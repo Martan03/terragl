@@ -1,16 +1,28 @@
 #pragma once
 
-#include "../gl/buffer.hpp"
-#include "../gl/program.hpp"
-#include "../gl/vertex_array.hpp"
+#include "../../gl/buffer.hpp"
+#include "../../gl/program.hpp"
+#include "../../gl/vertex_array.hpp"
+#include "../widget.hpp"
 #include "font.hpp"
+#include "system.hpp"
 
 #include <glm/glm.hpp>
 
-namespace tgl::text {
+namespace tgl::gui {
 
-class Text {
+class Text : public Widget {
 public:
+    Text(
+        glm::vec2 pos,
+        glm::vec2 size,
+        TextSystem &system,
+        std::string text = "",
+        glm::vec3 color = glm::vec3(1, 1, 1)
+    );
+
+    void render() override;
+
     Text(
         std::string text,
         float x,
@@ -25,6 +37,7 @@ public:
     void set_text(std::string text) { _text = text; }
 
 private:
+    TextSystem &_sys;
     gl::VertexArray _vao;
     gl::Buffer _vbo;
 
@@ -36,4 +49,4 @@ private:
     void init_buffers();
 };
 
-} // namespace tgl::text
+} // namespace tgl::gui
