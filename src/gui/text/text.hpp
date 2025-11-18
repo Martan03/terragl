@@ -1,10 +1,8 @@
 #pragma once
 
 #include "../../gl/buffer.hpp"
-#include "../../gl/program.hpp"
 #include "../../gl/vertex_array.hpp"
 #include "../widget.hpp"
-#include "font.hpp"
 #include "system.hpp"
 
 #include <glm/glm.hpp>
@@ -23,18 +21,7 @@ public:
 
     void render() override;
 
-    Text(
-        std::string text,
-        float x,
-        float y,
-        glm::vec3 color = glm::vec3(1, 1, 1)
-    );
-
-    void compile(Font &font);
-
-    void render(gl::Program &program, Font &font);
-
-    void set_text(std::string text) { _text = text; }
+    void set_text(std::string text);
 
 private:
     TextSystem &_sys;
@@ -43,10 +30,10 @@ private:
 
     std::string _text;
     glm::vec3 _color;
-    float _x;
-    float _y;
 
     void init_buffers();
+
+    void compile();
 };
 
 } // namespace tgl::gui

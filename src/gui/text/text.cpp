@@ -17,6 +17,7 @@ Text::Text(
     _text(text),
     _color(color) {
     init_buffers();
+    compile();
 }
 
 void Text::render() {
@@ -29,22 +30,28 @@ void Text::render() {
     glDrawArrays(GL_TRIANGLES, 0, _text.size() * 6);
 }
 
-void Text::render(gl::Program &program, Font &font) {
-    _vao.bind();
-    auto color_loc = program.uniform_loc("color");
-    glUniform3f(color_loc, _color.r, _color.g, _color.b);
-    font._atlas.bind();
-    glDrawArrays(GL_TRIANGLES, 0, _text.size() * 6);
+void Text::set_text(std::string text) {
+    if (text == _text)
+        return;
+    _text = text;
+    compile();
 }
 
-void Text::compile(Font &font) {
+void Text::init_buffers() {
+    _vao.bind();
+    _vbo.bind();
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+}
+
+void Text::compile() {
     std::vector<float> vert;
     vert.reserve(_text.size() * 6 * 4);
-    float xpos = _x;
+    float xpos = _pos.x;
     for (char c : _text) {
-        const auto &ch = font._chars[c];
+        const auto &ch = _sys.font()._chars[c];
         float x = xpos + ch.bearing.x;
-        float y = _y - ch.bearing.y;
+        float y = _pos.y - ch.bearing.y;
 
         float u1 = ch.uv.x + ch.uv_size.x;
         float v1 = ch.uv.y + ch.uv_size.y;
@@ -59,13 +66,6 @@ void Text::compile(Font &font) {
 
     _vbo.bind();
     _vbo.set(vert);
-}
-
-void Text::init_buffers() {
-    _vao.bind();
-    _vbo.bind();
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 }
 
 } // namespace tgl::gui
