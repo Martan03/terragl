@@ -55,9 +55,9 @@ private:
     float _last = 0;
 
     gui::TextSystem _text_sys;
+    gui::Text _fps;
 
     int _frames = 0;
-    int _fps = 0;
     float _last_fps = 0;
 
     void setup_win();

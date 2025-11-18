@@ -20,11 +20,12 @@ Text::Text(
 }
 
 void Text::render() {
+    _vao.bind();
+    _sys.font()._atlas.bind();
+
     _sys.program().use();
     glUniform3f(_sys.col_loc(), _color.r, _color.g, _color.b);
 
-    _vao.bind();
-    _sys.font()._atlas.bind();
     glDrawArrays(GL_TRIANGLES, 0, _text.size() * 6);
 }
 
