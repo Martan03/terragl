@@ -12,7 +12,9 @@ Menu::Menu(Scene &scene) :
     State(scene),
     _resume(
         glm::vec2(5, 5), glm::vec2(200, 200), _scene.text_sys(), "Resume"
-    ) { }
+    ) {
+    _resume.set_on_click([this]() { _scene.set_state(StateType::Game); });
+}
 
 void Menu::render() {
     _scene.state(StateType::Game)->render();

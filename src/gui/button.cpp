@@ -1,5 +1,9 @@
 #include "button.hpp"
 
+#if true
+#include <GLFW/glfw3.h>
+#endif
+
 namespace tgl::gui {
 
 Button::Button(
@@ -17,6 +21,18 @@ void Button::render() {
 void Button::set_proj(glm::mat4 &proj) {
     // Text projection matrix is set via the text system
     _bg.set_proj(proj);
+}
+
+bool Button::on_mouse_click(int button, int action, double x, double y) {
+    if (!contains(x, y))
+        return false;
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        if (_on_click)
+            _on_click();
+        return true;
+    }
+    return false;
 }
 
 } // namespace tgl::gui
