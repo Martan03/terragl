@@ -5,7 +5,7 @@
 
 #include <freetype/freetype.h>
 
-namespace tgl::text {
+namespace tgl::gui {
 
 Font::Font(const char *path) : _atlas() {
     FT_Library ft;
@@ -86,4 +86,4 @@ void Font::generate(FT_Face face) {
     }
 }
 
-} // namespace tgl::text
+} // namespace tgl::gui

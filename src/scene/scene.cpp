@@ -10,7 +10,11 @@
 namespace tgl::scene {
 
 Scene::Scene(gl::Window win, glm::vec3 cam) :
-    _window(std::move(win)), _camera(cam), _terrain(1024, 1024) {
+    _window(std::move(win)),
+    _camera(cam),
+    _terrain(1024, 1024),
+    _text_sys(),
+    _fps(glm::vec2(10, 20), glm::vec2(-1, 1), _text_sys, "0 FPS") {
     _singleton = this;
     check_controllers();
 
@@ -31,7 +35,7 @@ void Scene::main_loop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         _active->render();
-        _text_renderer.render(_window, _fps);
+        _fps.render();
 
         _window.swap_poll();
     }
@@ -70,7 +74,6 @@ void Scene::update_delta() {
     if (current - _last_fps >= 1.0) {
         int fps = _frames / (current - _last_fps);
         _fps.set_text(std::format("{} FPS", fps));
-        _fps.compile(_text_renderer.font());
         _last_fps = current;
         _frames = 0;
     }
@@ -82,6 +85,9 @@ void Scene::handle_resize(GLFWwindow *win, int width, int height) {
         return;
     ctx->window().on_resize(width, height);
     ctx->_active->resize();
+
+    auto proj = ctx->window().ortho();
+    ctx->_text_sys.set_proj(proj);
 }
 
 void Scene::handle_mouse(GLFWwindow *win, double xpos_in, double ypos_in) {
