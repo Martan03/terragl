@@ -15,7 +15,7 @@ Text::Text(
     glm::vec3 color
 ) :
     Widget(pos, size),
-    _sys(sys),
+    _sys(&sys),
     _vbo(GL_ARRAY_BUFFER),
     _ebo(GL_ELEMENT_ARRAY_BUFFER),
     _text(text),
@@ -29,11 +29,11 @@ Text::Text(
 
 void Text::render() {
     _vao.bind();
-    _sys.font()._atlas.bind();
+    _sys->font()._atlas.bind();
 
-    _sys.program().use();
-    glUniform3f(_sys.col_loc(), _color.r, _color.g, _color.b);
-    glUniformMatrix4fv(_sys.pos_loc(), 1, GL_FALSE, glm::value_ptr(_model));
+    _sys->program().use();
+    glUniform3f(_sys->col_loc(), _color.r, _color.g, _color.b);
+    glUniformMatrix4fv(_sys->pos_loc(), 1, GL_FALSE, glm::value_ptr(_model));
 
     glDrawElements(GL_TRIANGLES, _indices, GL_UNSIGNED_INT, 0);
 }
@@ -63,7 +63,7 @@ void Text::compile() {
     float ypos = 0;
     unsigned vert_cnt = 0;
     for (char c : _text) {
-        const auto &ch = _sys.font()._chars[c];
+        const auto &ch = _sys->font()._chars[c];
         float x = xpos + ch.bearing.x;
         float y = ypos - ch.bearing.y;
 

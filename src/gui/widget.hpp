@@ -18,7 +18,7 @@ public:
     }
 
     bool contains(double x, double y) {
-        return _pos.x <= x && x <= _pos.x + _size.x && _pos.x <= y &&
+        return _pos.x <= x && x <= _pos.x + _size.x && _pos.y <= y &&
                y <= _pos.y + _size.y;
     }
 

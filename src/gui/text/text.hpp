@@ -25,7 +25,7 @@ public:
     void set_fg(glm::vec3 color) { _color = color; };
 
 private:
-    TextSystem &_sys;
+    TextSystem *_sys;
     gl::VertexArray _vao;
     gl::Buffer _vbo;
     gl::Buffer _ebo;

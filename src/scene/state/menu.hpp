@@ -19,6 +19,7 @@ public:
 
 private:
     gui::Button _resume;
+    gui::Button _quit;
 };
 
 } // namespace tgl::scene::state
