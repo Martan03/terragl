@@ -45,14 +45,7 @@ void Game::handle_key(int key, int scancode, int action, int mods) {
 }
 
 void Game::handle_mouse(float xpos, float ypos) {
-    if (_last_x == -1 || _last_y == -1) {
-        _last_x = xpos;
-        _last_y = ypos;
-    }
-
-    _camera.process_mouse(xpos - _last_x, _last_y - ypos);
-    _last_x = xpos;
-    _last_y = ypos;
+    _camera.process_mouse(xpos - _scene.mouse_x(), _scene.mouse_y() - ypos);
 }
 
 void Game::handle_scroll(float xoff, float yoff) {

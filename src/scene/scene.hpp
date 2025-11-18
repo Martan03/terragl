@@ -41,6 +41,9 @@ public:
 
     gui::TextSystem &text_sys() { return _text_sys; }
 
+    float mouse_x() { return _mouse_x; }
+    float mouse_y() { return _mouse_y; }
+
 private:
     static inline Scene *_singleton = nullptr;
 
@@ -56,6 +59,9 @@ private:
     float _delta = 0;
     float _last = 0;
 
+    float _mouse_x = -1;
+    float _mouse_y = -1;
+
     gui::TextSystem _text_sys;
     gui::Text _fps;
 
@@ -69,6 +75,9 @@ private:
     static void handle_resize(GLFWwindow *win, int width, int height);
 
     static void handle_mouse(GLFWwindow *win, double xpos_in, double ypos_in);
+    static void handle_click(
+        GLFWwindow *window, int button, int action, int mods
+    );
     static void handle_scroll(GLFWwindow *win, double xoff, double yoff);
 
     static void handle_key(

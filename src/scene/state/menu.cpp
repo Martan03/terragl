@@ -32,4 +32,8 @@ void Menu::handle_key(int key, int scancode, int action, int mods) {
     }
 }
 
+void Menu::handle_click(int button, int action, int mods) {
+    _resume.on_mouse_click(button, action, _scene.mouse_x(), _scene.mouse_y());
+}
+
 } // namespace tgl::scene::state

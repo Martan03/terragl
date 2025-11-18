@@ -15,6 +15,8 @@ public:
 
     void handle_key(int key, int scancode, int action, int mods) override;
 
+    void handle_click(int button, int action, int mods) override;
+
 private:
     gui::Button _resume;
 };

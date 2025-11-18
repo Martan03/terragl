@@ -60,6 +60,7 @@ void Scene::setup_win() {
     // _window.context();
     glfwSetFramebufferSizeCallback(_window.get(), handle_resize);
     glfwSetCursorPosCallback(_window.get(), handle_mouse);
+    glfwSetMouseButtonCallback(_window.get(), handle_click);
     glfwSetScrollCallback(_window.get(), handle_scroll);
     glfwSetKeyCallback(_window.get(), handle_key);
     glfwSetJoystickCallback(joystick_callback);
@@ -94,7 +95,22 @@ void Scene::handle_mouse(GLFWwindow *win, double xpos_in, double ypos_in) {
     auto *ctx = Scene::get_context(win);
     if (!ctx)
         return;
+
+    if (ctx->_mouse_x == -1 || ctx->_mouse_y == -1) {
+        ctx->_mouse_x = xpos_in;
+        ctx->_mouse_y = ypos_in;
+    }
+
     ctx->_active->handle_mouse(xpos_in, ypos_in);
+    ctx->_mouse_x = xpos_in;
+    ctx->_mouse_y = ypos_in;
+}
+
+void Scene::handle_click(GLFWwindow *win, int button, int action, int mods) {
+    auto *ctx = Scene::get_context(win);
+    if (!ctx)
+        return;
+    ctx->_active->handle_click(button, action, mods);
 }
 
 void Scene::handle_scroll(GLFWwindow *win, double xoff, double yoff) {
