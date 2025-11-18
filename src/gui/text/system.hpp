@@ -14,6 +14,7 @@ public:
     gl::Program &program() { return _program; }
     GLint proj_loc() { return _proj_loc; }
     GLint col_loc() { return _col_loc; }
+    GLint pos_loc() { return _pos_loc; }
 
     Font &font() { return _font; }
 
@@ -21,6 +22,7 @@ private:
     gl::Program _program;
     GLint _proj_loc;
     GLint _col_loc;
+    GLint _pos_loc;
 
     Font _font;
 };

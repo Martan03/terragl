@@ -18,6 +18,7 @@ TextSystem::TextSystem() :
     _program(VERT_SHADER, FRAG_SHADER), _font("./NotoSansMono-Regular.ttf") {
     _proj_loc = _program.uniform_loc("proj");
     _col_loc = _program.uniform_loc("color");
+    _pos_loc = _program.uniform_loc("model");
 }
 
 void TextSystem::set_proj(glm::mat4 &proj) {

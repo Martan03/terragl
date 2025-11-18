@@ -28,6 +28,10 @@ private:
     TextSystem &_sys;
     gl::VertexArray _vao;
     gl::Buffer _vbo;
+    gl::Buffer _ebo;
+
+    glm::mat4 _model;
+    unsigned _indices = 0;
 
     std::string _text;
     glm::vec3 _color;
