@@ -9,16 +9,19 @@
 namespace tgl::scene::state {
 
 Menu::Menu(Scene &scene) :
-    State(scene), _quad(glm::vec2(5, 5), glm::vec2(200, 200)) { }
+    State(scene),
+    _resume(
+        glm::vec2(5, 5), glm::vec2(200, 200), _scene.text_sys(), "Resume"
+    ) { }
 
 void Menu::render() {
     _scene.state(StateType::Game)->render();
-    _quad.render();
+    _resume.render();
 }
 
 void Menu::resize() {
     auto proj = _scene.window().ortho();
-    _quad.set_proj(proj);
+    _resume.set_proj(proj);
 }
 
 void Menu::handle_key(int key, int scancode, int action, int mods) {

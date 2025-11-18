@@ -17,7 +17,9 @@ void Game::render() {
     auto ratio = _scene.window().ratio();
     proj = glm::perspective(glm::radians(80.0f), ratio, 0.1f, 500.0f);
 
+    glEnable(GL_DEPTH_TEST);
     _terrain.render(view, proj);
+    glDisable(GL_DEPTH_TEST);
 }
 
 void Game::handle_input(float delta) {

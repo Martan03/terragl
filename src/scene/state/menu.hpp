@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../gui/quad/quad.hpp"
+#include "../../gui/button.hpp"
 #include "state.hpp"
 
 namespace tgl::scene::state {
@@ -16,7 +16,7 @@ public:
     void handle_key(int key, int scancode, int action, int mods) override;
 
 private:
-    gui::Quad _quad;
+    gui::Button _resume;
 };
 
 } // namespace tgl::scene::state

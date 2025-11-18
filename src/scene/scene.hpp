@@ -39,6 +39,8 @@ public:
     state::State *state(StateType type) { return _states.at(type).get(); }
     void set_state(StateType type);
 
+    gui::TextSystem &text_sys() { return _text_sys; }
+
 private:
     static inline Scene *_singleton = nullptr;
 

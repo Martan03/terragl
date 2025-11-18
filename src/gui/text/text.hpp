@@ -22,6 +22,7 @@ public:
     void render() override;
 
     void set_text(std::string text);
+    void set_fg(glm::vec3 color) { _color = color; };
 
 private:
     TextSystem &_sys;
