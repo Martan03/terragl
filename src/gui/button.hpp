@@ -13,6 +13,7 @@ namespace tgl::gui {
 
 class Button : public Widget {
 public:
+    Button(glm::vec2 size, TextSystem &sys, std::string text);
     Button(glm::vec2 pos, glm::vec2 size, TextSystem &sys, std::string text);
 
     void render() override;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "../../gui/button.hpp"
 #include "state.hpp"
 
@@ -18,8 +20,7 @@ public:
     void handle_click(int button, int action, int mods) override;
 
 private:
-    gui::Button _resume;
-    gui::Button _quit;
+    std::vector<gui::Button> _buttons;
 };
 
 } // namespace tgl::scene::state
