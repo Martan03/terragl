@@ -27,9 +27,15 @@ public:
     void fg(glm::vec3 color) { _text.set_fg(color); }
     void bg(glm::vec3 color) { _bg.set_color(color); }
 
+    void padding(glm::vec4 pad);
+    void padding(glm::vec2 pad) { padding(glm::vec4(pad, pad)); }
+    void padding(float pad) { padding(glm::vec4(pad)); }
+
 private:
     Quad _bg;
     Text _text;
+
+    glm::vec4 _padding;
 
     std::function<void()> _on_click;
 };

@@ -8,18 +8,20 @@
 
 namespace tgl::scene::state {
 
-const int BTN_WIDTH = 100;
-const int BTN_HEIGHT = 25;
+const int BTN_WIDTH = 125;
+const int BTN_HEIGHT = 35;
 
 Menu::Menu(Scene &scene) : State(scene) {
     auto btn_size = glm::vec2(BTN_WIDTH, BTN_HEIGHT);
-    auto resume =
-        gui::Button(glm::vec2(5, 100), btn_size, _scene.text_sys(), "Resume");
+    auto btn_pad = glm::vec2(10, 15);
+
+    auto resume = gui::Button(btn_size, _scene.text_sys(), "Resume");
+    resume.padding(btn_pad);
     resume.set_on_click([this]() { _scene.set_state(StateType::Game); });
     _buttons.push_back(std::move(resume));
 
-    auto quit =
-        gui::Button(glm::vec2(5, 135), btn_size, _scene.text_sys(), "Quit");
+    auto quit = gui::Button(btn_size, _scene.text_sys(), "Quit");
+    quit.padding(btn_pad);
     quit.set_on_click([this]() {
         glfwSetWindowShouldClose(_scene.window().get(), true);
     });
