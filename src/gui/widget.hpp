@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
 namespace tgl::gui {
@@ -17,10 +18,18 @@ public:
         return false;
     }
 
+    glm::mat4 model() const {
+        glm::mat4 model = glm::mat4(1);
+        model = glm::translate(model, glm::vec3(_pos, 0));
+        return model;
+    }
+
     bool contains(double x, double y) {
         return _pos.x <= x && x <= _pos.x + _size.x && _pos.y <= y &&
                y <= _pos.y + _size.y;
     }
+
+    virtual void set_pos(glm::vec2 pos) { _pos = pos; }
 
 protected:
     glm::vec2 _pos;

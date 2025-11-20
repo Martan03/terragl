@@ -18,6 +18,7 @@ public:
 
     void set_proj(glm::mat4 &proj) override;
 
+    void set_pos(glm::vec2 pos) override;
     void set_color(glm::vec3 color);
     void set_color(float r, float g, float b);
 

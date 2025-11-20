@@ -1,5 +1,7 @@
 #include "quad.hpp"
 
+#include "glad/gl.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 namespace tgl::gui {
@@ -20,6 +22,7 @@ Quad::Quad(glm::vec2 pos, glm::vec2 size) :
     _vbo(GL_ARRAY_BUFFER) {
     init_buffers();
     set_color(0, 0, 0);
+    set_pos(pos);
 }
 
 void Quad::render() {
@@ -32,6 +35,13 @@ void Quad::set_proj(glm::mat4 &proj) {
     _program.use();
     auto proj_loc = _program.uniform_loc("proj");
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
+}
+
+void Quad::set_pos(glm::vec2 pos) {
+    _program.use();
+    auto model_loc = _program.uniform_loc("model");
+    glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model()));
+    _pos = pos;
 }
 
 void Quad::set_color(glm::vec3 color) {
@@ -51,10 +61,10 @@ void Quad::init_buffers() {
 
     // clang-format off
     float vertices[] = {
-        _pos.x, _pos.y, // TL
-        _pos.x, _pos.y + _size.y, // BL
-        _pos.x + _size.x, _pos.y, // TR
-        _pos.x + _size.x, _pos.y + _size.y // BR
+        0, 0, // TL
+        0, _size.y, // BL
+        _size.x, 0, // TR
+        _size.x, _size.y // BR
     };
     // clang-format on
     _vbo.set(vertices);
