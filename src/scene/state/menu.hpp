@@ -21,6 +21,10 @@ public:
 
 private:
     std::vector<gui::Button> _buttons;
+
+    void center_buttons(
+        std::function<void(gui::Button &)> btn_action = nullptr
+    );
 };
 
 } // namespace tgl::scene::state

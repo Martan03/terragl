@@ -8,14 +8,14 @@ namespace tgl::gui {
 
 Button::Button(glm::vec2 size, TextSystem &sys, std::string text) :
     Widget(glm::vec2(0, 0), size),
-    _text(glm::vec2(0, size.y), size, sys, text),
+    _text(glm::vec2(5, size.y - 5), size, sys, text),
     _bg(glm::vec2(0, 0), size) { }
 
 Button::Button(
     glm::vec2 pos, glm::vec2 size, TextSystem &sys, std::string text
 ) :
     Widget(pos, size),
-    _text(glm::vec2(pos.x, pos.y + size.y), size, sys, text),
+    _text(glm::vec2(pos.x + 5, pos.y + size.y - 5), size, sys, text),
     _bg(pos, size) { }
 
 void Button::render() {
@@ -26,6 +26,12 @@ void Button::render() {
 void Button::set_proj(glm::mat4 &proj) {
     // Text projection matrix is set via the text system
     _bg.set_proj(proj);
+}
+
+void Button::set_pos(glm::vec2 pos) {
+    _pos = pos;
+    _bg.set_pos(pos);
+    _text.set_pos(glm::vec2(pos.x + 5, pos.y + _size.y - 5));
 }
 
 bool Button::on_mouse_click(int button, int action, double x, double y) {

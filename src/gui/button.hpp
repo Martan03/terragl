@@ -19,6 +19,7 @@ public:
     void render() override;
 
     void set_proj(glm::mat4 &proj) override;
+    void set_pos(glm::vec2 pos) override;
 
     void set_on_click(std::function<void()> callback) { _on_click = callback; }
     bool on_mouse_click(int button, int action, double x, double y) override;

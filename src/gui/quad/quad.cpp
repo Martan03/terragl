@@ -39,9 +39,9 @@ void Quad::set_proj(glm::mat4 &proj) {
 
 void Quad::set_pos(glm::vec2 pos) {
     _program.use();
+    _pos = pos;
     auto model_loc = _program.uniform_loc("model");
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model()));
-    _pos = pos;
 }
 
 void Quad::set_color(glm::vec3 color) {

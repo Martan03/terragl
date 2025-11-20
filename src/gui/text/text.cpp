@@ -38,6 +38,11 @@ void Text::render() {
     glDrawElements(GL_TRIANGLES, _indices, GL_UNSIGNED_INT, 0);
 }
 
+void Text::set_pos(glm::vec2 pos) {
+    _pos = pos;
+    _model = model();
+}
+
 void Text::set_text(std::string text) {
     if (text == _text)
         return;

@@ -8,8 +8,11 @@
 
 namespace tgl::scene::state {
 
+const int BTN_WIDTH = 100;
+const int BTN_HEIGHT = 25;
+
 Menu::Menu(Scene &scene) : State(scene) {
-    auto btn_size = glm::vec2(100, 25);
+    auto btn_size = glm::vec2(BTN_WIDTH, BTN_HEIGHT);
     auto resume =
         gui::Button(glm::vec2(5, 100), btn_size, _scene.text_sys(), "Resume");
     resume.set_on_click([this]() { _scene.set_state(StateType::Game); });
@@ -21,6 +24,8 @@ Menu::Menu(Scene &scene) : State(scene) {
         glfwSetWindowShouldClose(_scene.window().get(), true);
     });
     _buttons.push_back(std::move(quit));
+
+    center_buttons();
 }
 
 void Menu::render() {
@@ -32,9 +37,7 @@ void Menu::render() {
 
 void Menu::resize() {
     auto proj = _scene.window().ortho();
-    for (auto &button : _buttons) {
-        button.set_proj(proj);
-    }
+    center_buttons([&proj](gui::Button &btn) { btn.set_proj(proj); });
 }
 
 void Menu::handle_key(int key, int scancode, int action, int mods) {
@@ -47,6 +50,22 @@ void Menu::handle_click(int button, int action, int mods) {
     // TODO: probably iterate from back
     for (auto &btn : _buttons) {
         btn.on_mouse_click(button, action, _scene.mouse_x(), _scene.mouse_y());
+    }
+}
+
+void Menu::center_buttons(std::function<void(gui::Button &)> btn_action) {
+    auto cw = _scene.window().width() / 2;
+    auto ch = _scene.window().height() / 2;
+
+    auto sx = cw - BTN_WIDTH / 2;
+    auto sy = ch - ((BTN_HEIGHT + 10) * _buttons.size() - 10) / 2;
+    for (auto &btn : _buttons) {
+        btn.set_pos(glm::vec2(sx, sy));
+        sy += BTN_HEIGHT + 10;
+
+        if (btn_action) {
+            btn_action(btn);
+        }
     }
 }
 
