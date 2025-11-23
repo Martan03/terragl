@@ -44,7 +44,7 @@ float Simplex::noise(float x, float y) {
     float t1 = 0.5 - x1 * x1 - y1 * y1;
     if (t1 >= 0) {
         t1 *= t1;
-        n0 = t1 * t1 * grad(gi1, x1, y1);
+        n1 = t1 * t1 * grad(gi1, x1, y1);
     }
 
     float t2 = 0.5 - x2 * x2 - y2 * y2;
@@ -53,7 +53,7 @@ float Simplex::noise(float x, float y) {
         n2 = t2 * t2 * grad(gi2, x2, y2);
     }
 
-    return 70 * (n0 + n1 + n2);
+    return 45.23065f * (n0 + n1 + n2);
 }
 
 uint8_t Simplex::hash(int i) {
