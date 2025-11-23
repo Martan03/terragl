@@ -3,7 +3,9 @@
 #include <tuple>
 #include <vector>
 
-#include "perlin2.hpp"
+#include "noise.hpp"
+#include "perlin.hpp"
+#include "simplex.hpp"
 
 #include <glm/ext/quaternion_geometric.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -54,11 +56,20 @@ public:
         _persist(persist) { }
 
     void perlin_gen(int oct = 1) {
-        auto perlin = Perlin2();
+        auto perlin = Perlin();
+        noise_gen(perlin, oct);
+    }
+
+    void simplex_gen(int oct = 1) {
+        auto simplex = Simplex();
+        noise_gen(simplex, oct);
+    }
+
+    void noise_gen(Noise &noise, int oct = 1) {
         for_each([&](int x, int y, int id) {
             auto rx = (float)x * _x_rate * _freq;
             auto ry = (float)y * _y_rate * _freq;
-            float val = perlin.noise(rx, ry, oct);
+            float val = noise.fbm(rx, ry, oct);
             _map[id] = val * _amp;
         });
     }
