@@ -34,7 +34,8 @@ static constexpr char FRAG_SHADER[]{
 Terrain::Terrain(int width, int height) :
     _program(VERT_SHADER, TESC_SHADER, TESE_SHADER, FRAG_SHADER),
     _vbo(GL_ARRAY_BUFFER),
-    _ebo(GL_ELEMENT_ARRAY_BUFFER) {
+    _ebo(GL_ELEMENT_ARRAY_BUFFER),
+    _map(width, height) {
     init_buffers(width, height);
     vertex_attrib();
     set_static_uniforms();
@@ -60,16 +61,15 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
 }
 
 void Terrain::init_buffers(int width, int height) {
-    auto heights = height_map::HeightMap(width, height);
-    heights.simplex_gen(5);
-    heights.hydro_erosion();
+    _map.simplex_gen(5);
+    _map.hydro_erosion();
     _vao.bind();
 
     _vbo.bind();
-    _vbo.set(heights.vertices());
+    _vbo.set(_map.vertices());
 
     _ebo.bind();
-    auto indices = heights.indices();
+    auto indices = _map.indices();
     _triangle_cnt = indices.size();
     _ebo.set(indices);
 

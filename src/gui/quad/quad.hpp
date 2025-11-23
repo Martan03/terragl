@@ -2,7 +2,9 @@
 
 #include "../../gl/buffer.hpp"
 #include "../../gl/program.hpp"
+#include "../../gl/texture.hpp"
 #include "../../gl/vertex_array.hpp"
+#include "../../height_map/height_map.hpp"
 #include "../widget.hpp"
 
 #include <glm/fwd.hpp>
@@ -13,6 +15,7 @@ namespace tgl::gui {
 class Quad : public Widget {
 public:
     Quad(glm::vec2 pos, glm::vec2 size);
+    Quad(glm::vec2 pos, glm::vec2 size, height_map::HeightMap &map);
 
     void render() override;
 
@@ -27,9 +30,14 @@ private:
     gl::VertexArray _vao;
     gl::Buffer _vbo;
 
+    bool _use_tex = false;
+    gl::Texture _texture;
+
     glm::vec3 _color;
 
     void init_buffers();
+
+    void set_uniforms();
 };
 
 } // namespace tgl::gui

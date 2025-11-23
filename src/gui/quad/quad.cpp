@@ -21,13 +21,48 @@ Quad::Quad(glm::vec2 pos, glm::vec2 size) :
     _program(VERT_SHADER, FRAG_SHADER),
     _vbo(GL_ARRAY_BUFFER) {
     init_buffers();
-    set_color(0, 0, 0);
-    set_pos(pos);
+    set_uniforms();
+}
+
+Quad::Quad(glm::vec2 pos, glm::vec2 size, height_map::HeightMap &map) :
+    Quad(pos, size) {
+    _use_tex = true;
+    auto tex_loc = _program.uniform_loc("useTex");
+    glUniform1i(tex_loc, _use_tex);
+
+    _texture.bind();
+    _texture.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _texture.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _texture.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    _texture.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    auto data = map.pixels();
+    int w = map.width(), h = map.height();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(
+        _texture.kind(),
+        0,
+        GL_RED,
+        w,
+        h,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        data.data()
+    );
+
+    GLint swizzle[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+    glTexParameteriv(_texture.kind(), GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+    tex_loc = _program.uniform_loc("tex");
+    glUniform1i(tex_loc, 0);
 }
 
 void Quad::render() {
     _program.use();
     _vao.bind();
+    if (_use_tex) {
+        _texture.bind();
+    }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
@@ -61,16 +96,36 @@ void Quad::init_buffers() {
 
     // clang-format off
     float vertices[] = {
-        0, 0, // TL
-        0, _size.y, // BL
-        _size.x, 0, // TR
-        _size.x, _size.y // BR
+        0, 0, 0, 1, // TL
+        0, _size.y, 0, 0, // BL
+        _size.x, 0, 1, 1, // TR
+        _size.x, _size.y, 1, 0, // BR
     };
     // clang-format on
     _vbo.set(vertices);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+        1,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        4 * sizeof(float),
+        (void *)(2 * sizeof(float))
+    );
+}
+
+void Quad::set_uniforms() {
+    _program.use();
+    auto col_loc = _program.uniform_loc("color");
+    glUniform3f(col_loc, _color.r, _color.g, _color.b);
+    auto model_loc = _program.uniform_loc("model");
+    glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model()));
+    auto tex_loc = _program.uniform_loc("useTex");
+    glUniform1i(tex_loc, _use_tex);
 }
 
 } // namespace tgl::gui

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../gl/camera.hpp"
+#include "../../gui/quad/quad.hpp"
 #include "../../terrain/terrain.hpp"
 #include "state.hpp"
 
@@ -14,6 +15,8 @@ public:
 
     void render() override;
 
+    void resize() override;
+
     void handle_input(float delta) override;
     void handle_key(int key, int scancode, int action, int mods) override;
 
@@ -25,6 +28,7 @@ public:
 private:
     gl::Camera _camera;
     terrain::Terrain _terrain;
+    gui::Quad _map;
 
     float _last_x = -1;
     float _last_y = -1;

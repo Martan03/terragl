@@ -9,7 +9,10 @@
 namespace tgl::scene::state {
 
 Game::Game(Scene &scene) :
-    State(scene), _camera(glm::vec3(0, 25, 0)), _terrain(1024, 1024) { }
+    State(scene),
+    _camera(glm::vec3(0, 25, 0)),
+    _terrain(1024, 1024),
+    _map(glm::vec2(0, 0), glm::vec2(250, 250), _terrain.map()) { }
 
 void Game::render() {
     auto view = _camera.view();
@@ -20,6 +23,14 @@ void Game::render() {
     glEnable(GL_DEPTH_TEST);
     _terrain.render(view, proj);
     glDisable(GL_DEPTH_TEST);
+
+    _map.render();
+}
+
+void Game::resize() {
+    auto proj = _scene.window().ortho();
+    _map.set_proj(proj);
+    _map.set_pos(glm::vec2(_scene.window().width() - 255, 5));
 }
 
 void Game::handle_input(float delta) {

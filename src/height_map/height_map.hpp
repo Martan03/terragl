@@ -106,11 +106,16 @@ public:
     std::vector<unsigned char> pixels() {
         auto cnt = _width * _height;
         std::vector<unsigned char> pixels(cnt);
+        auto r = 0.5f / _amp;
         for (int i = 0; i < cnt; ++i) {
-            pixels[i] = static_cast<unsigned char>(_map[i] * 255.0f);
+            pixels[i] =
+                static_cast<unsigned char>((_map[i] * r + 0.5f) * 255.0f);
         }
         return pixels;
     }
+
+    int width() { return _width; }
+    int height() { return _height; }
 
 private:
     int _width, _height;

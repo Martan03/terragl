@@ -3,6 +3,7 @@
 #include "../gl/buffer.hpp"
 #include "../gl/program.hpp"
 #include "../gl/vertex_array.hpp"
+#include "../height_map/height_map.hpp"
 
 #include <glm/glm.hpp>
 
@@ -14,12 +15,15 @@ public:
 
     void render(glm::mat4 view, glm::mat4 proj);
 
+    height_map::HeightMap &map() { return _map; }
+
 private:
     gl::Program _program;
     gl::VertexArray _vao;
     gl::Buffer _vbo;
     gl::Buffer _ebo;
 
+    height_map::HeightMap _map;
     unsigned int _triangle_cnt = 0;
 
     void init_buffers(int width, int height);
