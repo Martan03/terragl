@@ -6,6 +6,7 @@
 
 #include "state/game.hpp"
 #include "state/menu.hpp"
+#include "state/settings.hpp"
 
 namespace tgl::scene {
 
@@ -20,6 +21,9 @@ Scene::Scene(gl::Window win, glm::vec3 cam) :
 
     _states.emplace(StateType::Game, std::make_unique<state::Game>(*this));
     _states.emplace(StateType::Menu, std::make_unique<state::Menu>(*this));
+    _states.emplace(
+        StateType::Settings, std::make_unique<state::Settings>(*this)
+    );
     set_state(StateType::Game);
 }
 
@@ -46,7 +50,7 @@ void Scene::set_state(StateType type) {
     case tgl::scene::StateType::Game:
         glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         break;
-    case tgl::scene::StateType::Menu:
+    default:
         glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         break;
     }

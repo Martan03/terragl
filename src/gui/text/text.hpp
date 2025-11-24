@@ -12,6 +12,19 @@ namespace tgl::gui {
 class Text : public Widget {
 public:
     Text(
+        TextSystem &system,
+        std::string text = "",
+        glm::vec3 color = glm::vec3(1, 1, 1)
+    );
+
+    Text(
+        glm::vec2 pos,
+        TextSystem &system,
+        std::string text = "",
+        glm::vec3 color = glm::vec3(1, 1, 1)
+    );
+
+    Text(
         glm::vec2 pos,
         glm::vec2 size,
         TextSystem &system,

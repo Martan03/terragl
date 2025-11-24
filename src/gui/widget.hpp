@@ -8,6 +8,7 @@ namespace tgl::gui {
 class Widget {
 public:
     Widget(glm::vec2 pos, glm::vec2 size) : _pos(pos), _size(size) { }
+    Widget(Widget &&) = default;
     virtual ~Widget() = default;
 
     virtual void render() = 0;

@@ -25,6 +25,7 @@ namespace tgl::scene {
 enum StateType {
     Game,
     Menu,
+    Settings,
 };
 
 class Scene {

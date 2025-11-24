@@ -61,7 +61,8 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
 }
 
 void Terrain::init_buffers(int width, int height) {
-    _map.simplex_gen(5);
+    _map.perlin_gen(5);
+    // _map.simplex_gen(5);
     _map.hydro_erosion();
     _vao.bind();
 

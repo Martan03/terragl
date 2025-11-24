@@ -7,6 +7,14 @@
 
 namespace tgl::gui {
 
+Text::Text(TextSystem &system, std::string text, glm::vec3 color) :
+    Text(glm::vec2(0, 0), glm::vec2(-1, -1), system, text, color) { }
+
+Text::Text(
+    glm::vec2 pos, TextSystem &system, std::string text, glm::vec3 color
+) :
+    Text(pos, glm::vec2(-1, -1), system, text, color) { }
+
 Text::Text(
     glm::vec2 pos,
     glm::vec2 size,

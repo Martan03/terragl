@@ -2,11 +2,11 @@ BUILD_DIR=build
 
 .PHONY: build
 build:
-	cd $(BUILD_DIR) && make
+	cd $(BUILD_DIR) && make -j
 
 .PHONY: run
 run:
-	cd $(BUILD_DIR) && make && ASAN_OPTIONS=detect_leaks=0 ./terragl
+	cd $(BUILD_DIR) && make -j && ASAN_OPTIONS=detect_leaks=0 ./terragl
 
 .PHONY: clean
 clean:

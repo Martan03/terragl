@@ -20,6 +20,11 @@ Menu::Menu(Scene &scene) : State(scene) {
     resume.set_on_click([this]() { _scene.set_state(StateType::Game); });
     _buttons.push_back(std::move(resume));
 
+    auto settings = gui::Button(btn_size, _scene.text_sys(), "Settings");
+    settings.padding(btn_pad);
+    settings.set_on_click([this]() { _scene.set_state(StateType::Settings); });
+    _buttons.push_back(std::move(settings));
+
     auto quit = gui::Button(btn_size, _scene.text_sys(), "Quit");
     quit.padding(btn_pad);
     quit.set_on_click([this]() {
