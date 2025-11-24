@@ -4,7 +4,47 @@
 #include <cmath>
 #include <random>
 
+#include "perlin.hpp"
+#include "simplex.hpp"
+
 namespace tgl::height_map {
+
+HeightMap::HeightMap(
+    int width,
+    int height,
+    float freq,
+    float amp,
+    float lacunarity,
+    float persist
+) :
+    _width(width),
+    _x_rate(256.0 / width),
+    _height(height),
+    _y_rate(256.0 / height),
+    _map(width * height),
+    _freq(freq),
+    _amp(amp),
+    _lacunarity(lacunarity),
+    _persist(persist) { }
+
+void HeightMap::gen(NoiseType type, int oct) {
+    switch (type) {
+    case NoiseType::Perlin:
+        gen_perlin(oct);
+    case NoiseType::Simplex:
+        gen_simplex(oct);
+    }
+}
+
+void HeightMap::gen_perlin(int oct) {
+    auto perlin = Perlin();
+    noise_gen(perlin, oct);
+}
+
+void HeightMap::gen_simplex(int oct) {
+    auto simplex = Simplex();
+    noise_gen(simplex, oct);
+}
 
 void HeightMap::hydro_erosion(ErosionConf conf) {
     std::random_device rd;
@@ -17,6 +57,15 @@ void HeightMap::hydro_erosion(ErosionConf conf) {
         auto droplet = Droplet{ x, y };
         sim_droplet(conf, droplet);
     }
+}
+
+void HeightMap::noise_gen(Noise &noise, int oct) {
+    for_each([&](int x, int y, int id) {
+        auto rx = (float)x * _x_rate * _freq;
+        auto ry = (float)y * _y_rate * _freq;
+        float val = noise.fbm(rx, ry, oct);
+        _map[id] = val * _amp;
+    });
 }
 
 void HeightMap::sim_droplet(ErosionConf &conf, Droplet drop) {

@@ -45,6 +45,10 @@ void Scene::main_loop() {
     }
 }
 
+state::Game *Scene::game_state() {
+    return static_cast<state::Game *>(state(StateType::Game));
+}
+
 void Scene::set_state(StateType type) {
     switch (type) {
     case tgl::scene::StateType::Game:

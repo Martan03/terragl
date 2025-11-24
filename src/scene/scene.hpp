@@ -9,6 +9,7 @@
 #include "../gl/window.hpp"
 #include "../gui/text/text.hpp"
 #include "../terrain/terrain.hpp"
+#include "state/game.hpp"
 #include "state/state.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -38,6 +39,7 @@ public:
     std::unordered_set<int> &controllers() { return _controllers; }
 
     state::State *state(StateType type) { return _states.at(type).get(); }
+    state::Game *game_state();
     void set_state(StateType type);
 
     gui::TextSystem &text_sys() { return _text_sys; }

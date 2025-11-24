@@ -60,10 +60,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
     glDrawElements(GL_PATCHES, _triangle_cnt, GL_UNSIGNED_INT, 0);
 }
 
-void Terrain::init_buffers(int width, int height) {
-    _map.perlin_gen(5);
-    // _map.simplex_gen(5);
-    _map.hydro_erosion();
+void Terrain::gen() {
     _vao.bind();
 
     _vbo.bind();
@@ -73,7 +70,22 @@ void Terrain::init_buffers(int width, int height) {
     auto indices = _map.indices();
     _triangle_cnt = indices.size();
     _ebo.set(indices);
+}
 
+void Terrain::set_noise(height_map::NoiseType type) {
+    if (type == _noise) {
+        return;
+    }
+    _noise = type;
+    _map.gen(_noise);
+}
+
+void Terrain::init_buffers(int width, int height) {
+    _map.gen_perlin(5);
+    // _map.gen_simplex(5);
+    _map.hydro_erosion();
+
+    gen();
     glPatchParameteri(GL_PATCH_VERTICES, 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }

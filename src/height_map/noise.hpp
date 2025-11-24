@@ -2,6 +2,8 @@
 
 namespace tgl::height_map {
 
+enum class NoiseType { Perlin, Simplex };
+
 class Noise {
 public:
     Noise(float lacunarity = 2, float persist = 0.5) :

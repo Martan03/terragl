@@ -4,8 +4,6 @@
 #include <vector>
 
 #include "noise.hpp"
-#include "perlin.hpp"
-#include "simplex.hpp"
 
 #include <glm/ext/quaternion_geometric.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -44,35 +42,11 @@ public:
         float amp = 25,
         float lacunarity = 2,
         float persist = 0.5
-    ) :
-        _width(width),
-        _x_rate(256.0 / width),
-        _height(height),
-        _y_rate(256.0 / height),
-        _map(width * height),
-        _freq(freq),
-        _amp(amp),
-        _lacunarity(lacunarity),
-        _persist(persist) { }
+    );
 
-    void perlin_gen(int oct = 1) {
-        auto perlin = Perlin();
-        noise_gen(perlin, oct);
-    }
-
-    void simplex_gen(int oct = 1) {
-        auto simplex = Simplex();
-        noise_gen(simplex, oct);
-    }
-
-    void noise_gen(Noise &noise, int oct = 1) {
-        for_each([&](int x, int y, int id) {
-            auto rx = (float)x * _x_rate * _freq;
-            auto ry = (float)y * _y_rate * _freq;
-            float val = noise.fbm(rx, ry, oct);
-            _map[id] = val * _amp;
-        });
-    }
+    void gen(NoiseType type, int oct = 5);
+    void gen_perlin(int oct = 5);
+    void gen_simplex(int oct = 5);
 
     void hydro_erosion(ErosionConf conf = ErosionConf{});
 
@@ -123,6 +97,8 @@ private:
     float _freq = 0.05, _amp = 20;
     float _lacunarity = 2, _persist = 0.5;
     std::vector<float> _map;
+
+    void noise_gen(Noise &noise, int oct = 1);
 
     struct Droplet {
         float x = 0;
