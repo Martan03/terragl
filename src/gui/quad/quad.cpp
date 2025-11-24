@@ -16,43 +16,19 @@ static constexpr char FRAG_SHADER[]{
     0
 };
 
-Quad::Quad(glm::vec2 pos, glm::vec2 size) :
+Quad::Quad(glm::vec2 pos, glm::vec2 size) : Quad(pos, size, nullptr) { }
+
+Quad::Quad(glm::vec2 pos, glm::vec2 size, gl::Texture *texture) :
     Widget(pos, size),
     _program(VERT_SHADER, FRAG_SHADER),
-    _vbo(GL_ARRAY_BUFFER) {
+    _vbo(GL_ARRAY_BUFFER),
+    _texture(texture) {
     init_buffers();
     set_uniforms();
-}
 
-Quad::Quad(glm::vec2 pos, glm::vec2 size, height_map::HeightMap &map) :
-    Quad(pos, size) {
-    _use_tex = true;
+    _use_tex = texture != nullptr;
     auto tex_loc = _program.uniform_loc("useTex");
     glUniform1i(tex_loc, _use_tex);
-
-    _texture.bind();
-    _texture.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    _texture.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    _texture.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    _texture.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    auto data = map.pixels();
-    int w = map.width(), h = map.height();
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(
-        _texture.kind(),
-        0,
-        GL_RED,
-        w,
-        h,
-        0,
-        GL_RED,
-        GL_UNSIGNED_BYTE,
-        data.data()
-    );
-
-    GLint swizzle[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
-    glTexParameteriv(_texture.kind(), GL_TEXTURE_SWIZZLE_RGBA, swizzle);
     tex_loc = _program.uniform_loc("tex");
     glUniform1i(tex_loc, 0);
 }
@@ -61,7 +37,7 @@ void Quad::render() {
     _program.use();
     _vao.bind();
     if (_use_tex) {
-        _texture.bind();
+        _texture->bind();
     }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }

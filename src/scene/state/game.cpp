@@ -12,7 +12,7 @@ Game::Game(Scene &scene) :
     State(scene),
     _camera(glm::vec3(0, 25, 0)),
     _terrain(1024, 1024),
-    _map(glm::vec2(0, 0), glm::vec2(250, 250), _terrain.map()) { }
+    _map(glm::vec2(0, 0), glm::vec2(250, 250), &_terrain.texture()) { }
 
 void Game::render() {
     auto view = _camera.view();

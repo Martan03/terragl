@@ -72,6 +72,7 @@ void Terrain::update() {
     }
     _update = false;
     _map.gen(_noise);
+    gen_texture();
     gen();
 }
 
@@ -93,6 +94,9 @@ void Terrain::init_buffers(int width, int height) {
     _triangle_cnt = indices.size();
     _ebo.set(indices);
 
+    init_texture();
+    gen_texture();
+
     glPatchParameteri(GL_PATCH_VERTICES, 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
@@ -112,6 +116,36 @@ void Terrain::vertex_attrib() {
         (void *)(sizeof(glm::vec3))
     );
     glEnableVertexAttribArray(1);
+}
+
+void Terrain::init_texture() {
+    _texture.bind();
+    _texture.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _texture.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _texture.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    _texture.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    GLint swizzle[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+    glTexParameteriv(_texture.kind(), GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+}
+
+void Terrain::gen_texture() {
+    _texture.bind();
+    auto data = _map.pixels();
+    int w = _map.width(), h = _map.height();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(
+        _texture.kind(),
+        0,
+        GL_RED,
+        w,
+        h,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        data.data()
+    );
 }
 
 void Terrain::set_static_uniforms() {

@@ -36,6 +36,7 @@ Settings::Settings(Scene &scene) : State(scene) {
 }
 
 void Settings::render() {
+    _scene.game_state()->terrain().update();
     for (auto &widget : _widgets) {
         widget->render();
     }
