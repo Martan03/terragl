@@ -31,8 +31,10 @@ void HeightMap::gen(NoiseType type, int oct) {
     switch (type) {
     case NoiseType::Perlin:
         gen_perlin(oct);
+        break;
     case NoiseType::Simplex:
         gen_simplex(oct);
+        break;
     }
 }
 

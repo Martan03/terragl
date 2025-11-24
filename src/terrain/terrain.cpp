@@ -62,14 +62,17 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
 
 void Terrain::gen() {
     _vao.bind();
-
     _vbo.bind();
     _vbo.set(_map.vertices());
+}
 
-    _ebo.bind();
-    auto indices = _map.indices();
-    _triangle_cnt = indices.size();
-    _ebo.set(indices);
+void Terrain::update() {
+    if (!_update) {
+        return;
+    }
+    _update = false;
+    _map.gen(_noise);
+    gen();
 }
 
 void Terrain::set_noise(height_map::NoiseType type) {
@@ -77,15 +80,19 @@ void Terrain::set_noise(height_map::NoiseType type) {
         return;
     }
     _noise = type;
-    _map.gen(_noise);
+    _update = true;
 }
 
 void Terrain::init_buffers(int width, int height) {
-    _map.gen_perlin(5);
-    // _map.gen_simplex(5);
+    _map.gen(_noise);
     _map.hydro_erosion();
 
     gen();
+    _ebo.bind();
+    auto indices = _map.indices();
+    _triangle_cnt = indices.size();
+    _ebo.set(indices);
+
     glPatchParameteri(GL_PATCH_VERTICES, 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }

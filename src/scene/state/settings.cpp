@@ -17,10 +17,21 @@ Settings::Settings(Scene &scene) : State(scene) {
     auto perlin =
         gui::Button(glm::vec2(10, 70), glm::vec2(125, 35), tsys, "Perlin");
     perlin.padding(pad);
+    perlin.set_on_click([this]() {
+        _scene.game_state()->terrain().set_noise(
+            height_map::NoiseType::Perlin
+        );
+    });
     _widgets.push_back(std::make_unique<gui::Button>(std::move(perlin)));
+
     auto simplex =
         gui::Button(glm::vec2(10, 110), glm::vec2(125, 35), tsys, "Simplex");
     simplex.padding(pad);
+    simplex.set_on_click([this]() {
+        _scene.game_state()->terrain().set_noise(
+            height_map::NoiseType::Simplex
+        );
+    });
     _widgets.push_back(std::make_unique<gui::Button>(std::move(simplex)));
 }
 

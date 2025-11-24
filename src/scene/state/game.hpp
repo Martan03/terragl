@@ -25,6 +25,8 @@ public:
 
     void handle_controllers(float delta) override;
 
+    terrain::Terrain &terrain() { return _terrain; }
+
 private:
     gl::Camera _camera;
     terrain::Terrain _terrain;

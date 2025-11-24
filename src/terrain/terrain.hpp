@@ -16,6 +16,7 @@ public:
     void render(glm::mat4 view, glm::mat4 proj);
 
     void gen();
+    void update();
 
     void set_noise(height_map::NoiseType type);
 
@@ -27,8 +28,10 @@ private:
     gl::Buffer _vbo;
     gl::Buffer _ebo;
 
-    height_map::NoiseType _noise;
+    height_map::NoiseType _noise = height_map::NoiseType::Simplex;
+
     height_map::HeightMap _map;
+    bool _update = false;
     unsigned int _triangle_cnt = 0;
 
     void init_buffers(int width, int height);
