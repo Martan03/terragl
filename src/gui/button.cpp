@@ -34,6 +34,15 @@ void Button::set_pos(glm::vec2 pos) {
     _text.set_pos(glm::vec2(pos.x + _padding.w, pos.y + _size.y - _padding.z));
 }
 
+void Button::set_size(glm::vec2 size) {
+    _size = size;
+    _bg.set_size(size);
+    auto tsize = glm::vec2(
+        size.x - _padding.y - _padding.w, size.y - _padding.x - _padding.z
+    );
+    _text.set_size(tsize);
+}
+
 void Button::padding(glm::vec4 pad) {
     if (_padding == pad)
         return;

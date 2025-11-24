@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "../../gui/quad/quad.hpp"
 #include "../../gui/widget.hpp"
 #include "state.hpp"
 
@@ -22,6 +23,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<gui::Widget>> _widgets;
+    gui::Quad _map;
 
     void layout();
 };

@@ -31,6 +31,7 @@ public:
     }
 
     virtual void set_pos(glm::vec2 pos) { _pos = pos; }
+    virtual void set_size(glm::vec2 size) { _size = size; }
 
 protected:
     glm::vec2 _pos;

@@ -18,6 +18,9 @@ static constexpr char FRAG_SHADER[]{
 
 Quad::Quad(glm::vec2 pos, glm::vec2 size) : Quad(pos, size, nullptr) { }
 
+Quad::Quad(gl::Texture *texture) :
+    Quad(glm::vec2(0, 0), glm::vec2(0, 0), texture) { }
+
 Quad::Quad(glm::vec2 pos, glm::vec2 size, gl::Texture *texture) :
     Widget(pos, size),
     _program(VERT_SHADER, FRAG_SHADER),
@@ -55,6 +58,11 @@ void Quad::set_pos(glm::vec2 pos) {
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model()));
 }
 
+void Quad::set_size(glm::vec2 size) {
+    _size = size;
+    set_vertices();
+}
+
 void Quad::set_color(glm::vec3 color) {
     _color = color;
     _program.use();
@@ -67,18 +75,7 @@ void Quad::set_color(float r, float g, float b) {
 }
 
 void Quad::init_buffers() {
-    _vao.bind();
-    _vbo.bind();
-
-    // clang-format off
-    float vertices[] = {
-        0, 0, 0, 1, // TL
-        0, _size.y, 0, 0, // BL
-        _size.x, 0, 1, 1, // TR
-        _size.x, _size.y, 1, 0, // BR
-    };
-    // clang-format on
-    _vbo.set(vertices);
+    set_vertices();
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
@@ -92,6 +89,21 @@ void Quad::init_buffers() {
         4 * sizeof(float),
         (void *)(2 * sizeof(float))
     );
+}
+
+void Quad::set_vertices() {
+    _vao.bind();
+    _vbo.bind();
+
+    // clang-format off
+    float vertices[] = {
+        0, 0, 0, 1, // TL
+        0, _size.y, 0, 0, // BL
+        _size.x, 0, 1, 1, // TR
+        _size.x, _size.y, 1, 0, // BR
+    };
+    // clang-format on
+    _vbo.set(vertices);
 }
 
 void Quad::set_uniforms() {

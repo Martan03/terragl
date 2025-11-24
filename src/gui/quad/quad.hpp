@@ -14,6 +14,7 @@ namespace tgl::gui {
 class Quad : public Widget {
 public:
     Quad(glm::vec2 pos, glm::vec2 size);
+    Quad(gl::Texture *texture);
     Quad(glm::vec2 pos, glm::vec2 size, gl::Texture *texture);
 
     void render() override;
@@ -21,6 +22,7 @@ public:
     void set_proj(glm::mat4 &proj) override;
 
     void set_pos(glm::vec2 pos) override;
+    void set_size(glm::vec2 size) override;
     void set_color(glm::vec3 color);
     void set_color(float r, float g, float b);
 
@@ -36,6 +38,7 @@ private:
 
     void init_buffers();
 
+    void set_vertices();
     void set_uniforms();
 };
 
