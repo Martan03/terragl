@@ -7,6 +7,7 @@
 
 #include <glm/ext/quaternion_geometric.hpp>
 #include <glm/ext/vector_float3.hpp>
+#include <glm/fwd.hpp>
 
 namespace tgl::height_map {
 
@@ -31,6 +32,7 @@ struct ErosionConf {
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 normal;
+    glm::vec2 uv;
 };
 
 class HeightMap {
@@ -58,7 +60,9 @@ public:
                 auto rx = float(x) * _x_rate;
                 auto ry = float(y) * _y_rate;
                 vertices.push_back(
-                    { glm::vec3(rx, _map[id], ry), calc_normal(x, y) }
+                    { glm::vec3(rx, _map[id], ry),
+                      calc_normal(x, y),
+                      glm::vec2(float(x) / _width, float(y) / _height) }
                 );
             }
         }
@@ -95,6 +99,7 @@ public:
 
     int width() { return _width; }
     int height() { return _height; }
+    std::vector<float> &map() { return _map; }
 
 private:
     int _width, _height;

@@ -3,9 +3,11 @@ layout(vertices = 4) out;
 
 in vec3 vPos[];
 in vec3 vNorm[];
+in vec2 vUv[];
 
 out vec3 tPos[];
 out vec3 tNorm[];
+out vec2 tUv[];
 
 uniform mat4 model;
 uniform mat4 view;
@@ -14,6 +16,7 @@ uniform mat4 proj;
 void main() {
     tPos[gl_InvocationID] = vPos[gl_InvocationID];
     tNorm[gl_InvocationID] = vNorm[gl_InvocationID];
+    tUv[gl_InvocationID] = vUv[gl_InvocationID];
 
     if (gl_InvocationID == 0)
     {

@@ -3,6 +3,7 @@ layout(quads, fractional_odd_spacing, ccw) in;
 
 in vec3 tPos[];
 in vec3 tNorm[];
+in vec2 tUv[];
 
 out vec3 fragPos;
 out vec3 normal;
@@ -10,6 +11,7 @@ out vec3 normal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
+uniform sampler2D tex;
 
 void main() {
     float u = gl_TessCoord.x;
@@ -23,7 +25,12 @@ void main() {
     vec3 n1 = mix(tNorm[3], tNorm[2], u);
     vec3 n = normalize(mix(n0, n1, v));
 
-    fragPos = vec3(model * vec4(pos, 1.0));
+    vec2 uv0 = mix(tUv[0], tUv[1], u);
+    vec2 uv1 = mix(tUv[3], tUv[2], u);
+    vec2 uv = mix(uv0, uv1, v);
+
+    vec4 col = texture(tex, uv);
+    fragPos = vec3(model * vec4(pos.x, col.r, pos.z , 1.0));
     normal = n;
     // normal = mat3(transpose(inverse(model))) * n;
 

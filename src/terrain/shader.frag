@@ -6,6 +6,7 @@ out vec4 FragColor;
 
 uniform vec3 lightPos;
 uniform vec3 lightColor;
+uniform sampler2D tex;
 
 const float minRockH = 5.0;
 const float maxRockH = 12.0;
@@ -33,4 +34,5 @@ void main() {
     vec3 color = mix(grassColor, rockColor, blend);
     vec3 result = (ambient + diffuse) * color;
     FragColor = vec4(result, 1);
+    // FragColor = texture(tex, uv);
 }
