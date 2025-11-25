@@ -14,6 +14,7 @@ public:
     virtual float noise(float x, float y) = 0;
 
     float fbm(float x, float y, int oct);
+    float fbm(float x, float y, float rot, int oct);
 
 protected:
     // Multiplies frequency each fbm iteration
