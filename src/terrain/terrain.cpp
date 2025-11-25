@@ -63,7 +63,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
 void Terrain::gen() {
     _vao.bind();
     _vbo.bind();
-    _vbo.set(_map.vertices());
+    _vbo.set(_map.vertices(_vert_factor));
 }
 
 void Terrain::update() {
@@ -90,7 +90,7 @@ void Terrain::init_buffers(int width, int height) {
 
     gen();
     _ebo.bind();
-    auto indices = _map.indices();
+    auto indices = _map.indices(_vert_factor);
     _triangle_cnt = indices.size();
     _ebo.set(indices);
 

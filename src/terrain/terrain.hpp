@@ -36,6 +36,8 @@ private:
     gl::Texture _texture;
     bool _update = false;
     unsigned int _triangle_cnt = 0;
+    
+    int _vert_factor = 4;
 
     void init_buffers(int width, int height);
     void vertex_attrib();

@@ -50,27 +50,32 @@ public:
 
     void hydro_erosion(ErosionConf conf = ErosionConf{});
 
-    std::vector<Vertex> vertices() {
+    std::vector<Vertex> vertices(int factor = 1) {
         std::vector<Vertex> vertices;
-        for_each([&](int x, int y, int id) {
-            auto rx = (float)x * _x_rate;
-            auto ry = (float)y * _y_rate;
-            vertices.push_back(
-                { glm::vec3(rx, _map[id], ry), calc_normal(x, y) }
-            );
-        });
+        for (int y = 0; y < _height; y += factor) {
+            for (int x = 0; x < _width; x += factor) {
+                auto id = y * _width + x;
+                auto rx = float(x) * _x_rate;
+                auto ry = float(y) * _y_rate;
+                vertices.push_back(
+                    { glm::vec3(rx, _map[id], ry), calc_normal(x, y) }
+                );
+            }
+        }
         return vertices;
     }
 
-    std::vector<unsigned int> indices() {
+    std::vector<unsigned int> indices(int factor = 1) {
         std::vector<unsigned int> indices;
-        for (int y = 0; y < _height - 1; ++y) {
-            for (int x = 0; x < _width - 1; ++x) {
-                int id = y * _width + x;
+        auto w = (_width + factor - 1) / factor;
+        auto h = (_height + factor - 1) / factor;
+        for (int y = 0; y < h - 1; ++y) {
+            for (int x = 0; x < w - 1; ++x) {
+                int id = y * w + x;
 
                 indices.push_back(id);
-                indices.push_back(id + _width);
-                indices.push_back(id + _width + 1);
+                indices.push_back(id + w);
+                indices.push_back(id + w + 1);
                 indices.push_back(id + 1);
             }
         }
