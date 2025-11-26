@@ -42,11 +42,11 @@ float Noise::fbm(float x, float y, float rot, int oct) {
 }
 
 float Noise::ridged_fbm(float x, float y, int oct) {
-    float n = noise(x, y) * 0.5 + 0.5;
+    float n = noise(x, y) * 0.5f + 0.5f;
     float total = n, max = 1;
     float freq = _lacunarity, amp = _persistance * _persistance;
 
-    for (int i = 0; i < oct; ++i) {
+    for (int i = 1; i < oct; ++i) {
         float n = 1.0f - std::fabs(noise(x * freq, y * freq));
         n *= total;
         total += n * amp;
@@ -54,6 +54,31 @@ float Noise::ridged_fbm(float x, float y, int oct) {
 
         amp *= _persistance;
         freq *= _lacunarity;
+    }
+
+    return total / max * 2 - 1;
+}
+
+float Noise::ridged_fbm(float x, float y, float rot, int oct) {
+    float n = noise(x, y) * 0.5f + 0.5f;
+    float total = n, max = 1;
+    float freq = _lacunarity, amp = _persistance * _persistance;
+
+    const float c = std::cos(rot);
+    const float s = std::sin(rot);
+
+    for (int i = 1; i < oct; ++i) {
+        n = 1.0f - std::fabs(noise(x + 173.36, y + 93.63));
+        n *= total * amp;
+        total += n;
+        max += amp * total;
+
+        amp *= _persistance;
+
+        float nx = x * c - y * s;
+        float ny = x * s + y * c;
+        x = nx * _lacunarity;
+        y = ny * _lacunarity;
     }
 
     return total / max * 2 - 1;

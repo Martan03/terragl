@@ -68,8 +68,9 @@ void HeightMap::noise_gen(Noise &noise, int oct) {
         // float val = noise.fbm(rx, ry, oct);
         // float val = noise.fbm(rx, ry, 0.5f, oct);
         float val = noise.ridged_fbm(rx, ry, oct);
-        // _map[id] = val * _amp;
-        _map[id] = (std::pow(val * 0.5 + 0.5, 3) * 2 - 1) * _amp;
+        // float val = noise.ridged_fbm(rx, ry, 0.5f, oct);
+        _map[id] = val * _amp;
+        // _map[id] = (std::pow(val * 0.5 + 0.5, 3) * 2 - 1) * _amp;
     });
 }
 
