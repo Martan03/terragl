@@ -16,6 +16,8 @@ public:
     float fbm(float x, float y, int oct);
     float fbm(float x, float y, float rot, int oct);
 
+    float ridged_fbm(float x, float y, int oct);
+
 protected:
     // Multiplies frequency each fbm iteration
     float _lacunarity;
