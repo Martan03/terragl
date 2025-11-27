@@ -5,10 +5,8 @@
 
 #include <glad/gl.h>
 
-#include "../gl/camera.hpp"
 #include "../gl/window.hpp"
 #include "../gui/text/text.hpp"
-#include "../terrain/terrain.hpp"
 #include "state/game.hpp"
 #include "state/state.hpp"
 
@@ -51,8 +49,6 @@ private:
     static inline Scene *_singleton = nullptr;
 
     tgl::gl::Window _window;
-    tgl::gl::Camera _camera;
-    tgl::terrain::Terrain _terrain;
 
     std::unordered_map<StateType, std::unique_ptr<state::State>> _states;
     state::State *_active = nullptr;

@@ -12,8 +12,6 @@ namespace tgl::scene {
 
 Scene::Scene(gl::Window win, glm::vec3 cam) :
     _window(std::move(win)),
-    _camera(cam),
-    _terrain(256, 256),
     _text_sys(),
     _fps(glm::vec2(10, 20), glm::vec2(-1, 1), _text_sys, "0 FPS") {
     _singleton = this;

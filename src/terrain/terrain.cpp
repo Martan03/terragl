@@ -1,5 +1,7 @@
 #include "terrain.hpp"
 
+#include <iostream>
+
 #include "../gl/program.hpp"
 #include "../height_map/height_map.hpp"
 #include "glad/gl.h"
@@ -87,8 +89,10 @@ void Terrain::set_noise(height_map::NoiseType type) {
 }
 
 void Terrain::init_buffers(int width, int height) {
+    std::cout << "Noise start" << std::endl;
     _map.gen(_noise);
-    _map.hydro_erosion();
+    std::cout << "Noise end" << std::endl;
+    // _map.hydro_erosion();
 
     gen();
     _ebo.bind();
