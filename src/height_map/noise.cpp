@@ -42,12 +42,12 @@ float Noise::fbm(float x, float y, float rot, int oct) {
 }
 
 float Noise::ridged_fbm(float x, float y, int oct) {
-    float n = noise(x, y) * 0.5f + 0.5f;
+    float n = deriv_noise(x, y).z * 0.5f + 0.5f;
     float total = n, max = 1;
     float freq = _lacunarity, amp = _persistance * _persistance;
 
     for (int i = 1; i < oct; ++i) {
-        float n = 1.0f - std::fabs(noise(x * freq, y * freq));
+        float n = 1.0f - std::fabs(deriv_noise(x * freq, y * freq).z);
         n *= total;
         total += n * amp;
         max += amp * total;

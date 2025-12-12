@@ -4,13 +4,7 @@
 
 namespace tgl::height_map {
 
-Perlin::Perlin() : Noise() {
-    _perm.resize(512);
-    for (int i = 0; i < 256; i++) {
-        _perm[i] = p[i];
-        _perm[i + 256] = p[i];
-    }
-}
+Perlin::Perlin() : Noise() { }
 
 float Perlin::noise(float x, float y) {
     int xi = (int)std::floor(x) & 255;
