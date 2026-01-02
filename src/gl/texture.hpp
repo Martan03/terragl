@@ -12,7 +12,8 @@ class Texture : public GLResource<del::Texture> {
 public:
     Texture() { glGenTextures(1, &_id); }
 
-    Texture(GLenum kind, GLenum unit) : _kind(kind), _unit(unit) {
+    Texture(GLenum unit, GLenum kind = GL_TEXTURE_2D) :
+        _kind(kind), _unit(unit) {
         glGenTextures(1, &_id);
     }
 

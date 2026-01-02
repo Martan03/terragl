@@ -16,6 +16,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glad)
 
+FetchContent_Declare(
+    stb_image
+    URL https://raw.githubusercontent.com/nothings/stb/master/stb_image.h
+    DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_MakeAvailable(stb_image)
+
 add_executable(terragl)
 
 file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp src/**/*.cpp src/**/**/*.cpp)
@@ -27,6 +34,8 @@ find_package(glm CONFIG REQUIRED)
 find_package(Freetype REQUIRED)
 
 glad_add_library(glad_gl_core_46 REPRODUCIBLE API gl:core=4.6)
+
+target_include_directories(terragl PRIVATE ${stb_image_SOURCE_DIR})
 
 target_link_libraries(terragl PRIVATE
     glad_gl_core_46

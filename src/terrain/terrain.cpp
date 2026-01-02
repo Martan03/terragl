@@ -4,6 +4,8 @@
 
 #include "../gl/program.hpp"
 #include "glad/gl.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -37,7 +39,9 @@ Terrain::Terrain(int width, int height) :
     _vbo(GL_ARRAY_BUFFER),
     _ebo(GL_ELEMENT_ARRAY_BUFFER),
     _map(width, height),
-    _normal_tex(GL_TEXTURE_2D, GL_TEXTURE1) {
+    _normal_tex(GL_TEXTURE1),
+    _grass_tex(GL_TEXTURE2),
+    _stone_tex(GL_TEXTURE3) {
     init_buffers(width, height);
     vertex_attrib();
     set_static_uniforms();
@@ -46,8 +50,11 @@ Terrain::Terrain(int width, int height) :
 void Terrain::render(glm::mat4 view, glm::mat4 proj) {
     _program.use();
     _vao.bind();
+
     _height_tex.bind();
     _normal_tex.bind();
+    _grass_tex.bind();
+    _stone_tex.bind();
 
     auto model_mat = glm::mat4(1);
     // model_mat = glm::scale(model_mat, glm::vec3(0.2, 0.2, 0.2));
@@ -115,6 +122,9 @@ void Terrain::init_buffers(int width, int height) {
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    load_texture(_grass_tex, "assets/grass/Grass005_1K-JPG_Color.jpg");
+    load_texture(_stone_tex, "assets/stone/Rock030_1K-JPG_Color.jpg");
 }
 
 void Terrain::vertex_attrib() {
@@ -140,6 +150,27 @@ void Terrain::init_texture(gl::Texture &tex) {
     tex.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     tex.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     tex.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+void Terrain::load_texture(gl::Texture &tex, const char *path) {
+    tex.bind();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
+    );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int w, h, channels;
+
+    auto data = stbi_load(path, &w, &h, &channels, 0);
+    if (data) {
+        glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+        );
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
 }
 
 void Terrain::gen_height_tex() {
@@ -197,6 +228,10 @@ void Terrain::set_static_uniforms() {
     glUniform1i(tex_loc, 0);
     auto norm_loc = _program.uniform_loc("normTex");
     glUniform1i(norm_loc, 1);
+    auto grass_loc = _program.uniform_loc("grassTex");
+    glUniform1i(grass_loc, 2);
+    auto stone_loc = _program.uniform_loc("stoneTex");
+    glUniform1i(stone_loc, 3);
 }
 
 } // namespace tgl::terrain

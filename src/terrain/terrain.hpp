@@ -38,6 +38,9 @@ private:
     gl::Texture _normal_tex;
     gl::Texture _noise_tex;
 
+    gl::Texture _grass_tex;
+    gl::Texture _stone_tex;
+
     bool _update = false;
     unsigned int _triangle_cnt = 0;
 
@@ -47,6 +50,8 @@ private:
     void vertex_attrib();
 
     void init_texture(gl::Texture &tex);
+    void load_texture(gl::Texture &tex, const char *path);
+
     void gen_height_tex();
     void gen_normal_tex();
     void gen_noise_tex();

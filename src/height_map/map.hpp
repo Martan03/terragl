@@ -39,7 +39,7 @@ public:
     Map(int width,
         int height,
         float freq = 0.03,
-        float amp = 25,
+        float amp = 35,
         float lacunarity = 2,
         float persist = 0.5);
 
