@@ -72,7 +72,6 @@ std::vector<Vertex> Map::vertices(int factor) {
             auto ry = float(y) * _y_rate;
             vertices.push_back(
                 { glm::vec3(rx, _heights[id], ry),
-                  calc_normal(rx, ry),
                   glm::vec2(float(x) / _width, float(y) / _height) }
             );
         }

@@ -125,23 +125,13 @@ void Terrain::vertex_attrib() {
 
     glVertexAttribPointer(
         1,
-        3,
+        2,
         GL_FLOAT,
         GL_FALSE,
         sizeof(height_map::Vertex),
         (void *)(sizeof(glm::vec3))
     );
     glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(
-        2,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(height_map::Vertex),
-        (void *)(2 * sizeof(glm::vec3))
-    );
-    glEnableVertexAttribArray(2);
 }
 
 void Terrain::init_texture(gl::Texture &tex) {
