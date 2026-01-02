@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "../gl/program.hpp"
-#include "../height_map/height_map.hpp"
 #include "glad/gl.h"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -37,7 +36,8 @@ Terrain::Terrain(int width, int height) :
     _program(VERT_SHADER, TESC_SHADER, TESE_SHADER, FRAG_SHADER),
     _vbo(GL_ARRAY_BUFFER),
     _ebo(GL_ELEMENT_ARRAY_BUFFER),
-    _map(width, height) {
+    _map(width, height),
+    _normal_tex(GL_TEXTURE_2D, GL_TEXTURE1) {
     init_buffers(width, height);
     vertex_attrib();
     set_static_uniforms();
@@ -47,6 +47,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
     _program.use();
     _vao.bind();
     _height_tex.bind();
+    _normal_tex.bind();
 
     auto model_mat = glm::mat4(1);
     // model_mat = glm::scale(model_mat, glm::vec3(0.2, 0.2, 0.2));
@@ -76,6 +77,7 @@ void Terrain::update() {
     _update = false;
     _map.gen(_noise);
     gen_height_tex();
+    gen_normal_tex();
     gen_noise_tex();
     gen();
 }
@@ -90,7 +92,7 @@ void Terrain::set_noise(height_map::NoiseType type) {
 
 void Terrain::init_buffers(int width, int height) {
     std::cout << "Noise start" << std::endl;
-    _map.gen(_noise);
+    _map.gen(_noise, 15);
     std::cout << "Noise end" << std::endl;
     // _map.hydro_erosion();
 
@@ -102,6 +104,9 @@ void Terrain::init_buffers(int width, int height) {
 
     init_texture(_height_tex);
     gen_height_tex();
+
+    init_texture(_normal_tex);
+    gen_normal_tex();
 
     init_texture(_noise_tex);
     GLint swizzle[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
@@ -149,11 +154,28 @@ void Terrain::init_texture(gl::Texture &tex) {
 
 void Terrain::gen_height_tex() {
     _height_tex.bind();
-    auto data = _map.map();
+    auto data = _map.heights();
     int w = _map.width(), h = _map.height();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(
         _height_tex.kind(), 0, GL_R32F, w, h, 0, GL_RED, GL_FLOAT, data.data()
+    );
+}
+
+void Terrain::gen_normal_tex() {
+    _normal_tex.bind();
+    auto data = _map.normals();
+    int w = _map.width(), h = _map.height();
+    glTexImage2D(
+        _normal_tex.kind(),
+        0,
+        GL_RGB32F,
+        w,
+        h,
+        0,
+        GL_RGB,
+        GL_FLOAT,
+        data.data()
     );
 }
 
@@ -183,6 +205,8 @@ void Terrain::set_static_uniforms() {
     glUniform3f(light_loc, 1, 1, 1);
     auto tex_loc = _program.uniform_loc("tex");
     glUniform1i(tex_loc, 0);
+    auto norm_loc = _program.uniform_loc("normTex");
+    glUniform1i(norm_loc, 1);
 }
 
 } // namespace tgl::terrain

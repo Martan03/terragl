@@ -4,7 +4,7 @@
 #include "../gl/program.hpp"
 #include "../gl/texture.hpp"
 #include "../gl/vertex_array.hpp"
-#include "../height_map/height_map.hpp"
+#include "../height_map/map.hpp"
 
 #include <glm/glm.hpp>
 
@@ -21,8 +21,9 @@ public:
 
     void set_noise(height_map::NoiseType type);
 
-    height_map::HeightMap &map() { return _map; }
+    height_map::Map &map() { return _map; }
     gl::Texture &texture() { return _noise_tex; }
+    gl::Texture &normal_texture() { return _normal_tex; }
 
 private:
     gl::Program _program;
@@ -32,8 +33,9 @@ private:
 
     height_map::NoiseType _noise = height_map::NoiseType::Perlin;
 
-    height_map::HeightMap _map;
+    height_map::Map _map;
     gl::Texture _height_tex;
+    gl::Texture _normal_tex;
     gl::Texture _noise_tex;
 
     bool _update = false;
@@ -46,6 +48,7 @@ private:
 
     void init_texture(gl::Texture &tex);
     void gen_height_tex();
+    void gen_normal_tex();
     void gen_noise_tex();
 
     void set_static_uniforms();

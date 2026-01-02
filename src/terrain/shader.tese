@@ -7,6 +7,7 @@ in vec2 tUv[];
 
 out vec3 fragPos;
 out vec3 normal;
+out vec2 uv;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -27,10 +28,10 @@ void main() {
 
     vec2 uv0 = mix(tUv[0], tUv[1], u);
     vec2 uv1 = mix(tUv[3], tUv[2], u);
-    vec2 uv = mix(uv0, uv1, v);
+    uv = mix(uv0, uv1, v);
 
     vec4 col = texture(tex, uv);
-    fragPos = vec3(model * vec4(pos.x, col.r, pos.z , 1.0));
+    fragPos = vec3(model * vec4(pos.x, col.r, pos.z, 1.0));
     normal = n;
     // normal = mat3(transpose(inverse(model))) * n;
 

@@ -31,20 +31,18 @@ struct ErosionConf {
 
 struct Vertex {
     glm::vec3 pos;
-    glm::vec3 normal;
+    glm::vec3 norm;
     glm::vec2 uv;
 };
 
-class HeightMap {
+class Map {
 public:
-    HeightMap(
-        int width,
+    Map(int width,
         int height,
         float freq = 0.03,
-        float amp = 50,
+        float amp = 25,
         float lacunarity = 2,
-        float persist = 0.5
-    );
+        float persist = 0.5);
 
     void gen(NoiseType type, int oct = 5);
     void gen_perlin(int oct = 5);
@@ -52,63 +50,26 @@ public:
 
     void hydro_erosion(ErosionConf conf = ErosionConf{});
 
-    std::vector<Vertex> vertices(int factor = 1) {
-        std::vector<Vertex> vertices;
-        for (int y = 0; y < _height; y += factor) {
-            for (int x = 0; x < _width; x += factor) {
-                auto id = y * _width + x;
-                auto rx = float(x) * _x_rate;
-                auto ry = float(y) * _y_rate;
-                vertices.push_back(
-                    { glm::vec3(rx, _map[id], ry),
-                      calc_normal(x, y),
-                      glm::vec2(float(x) / _width, float(y) / _height) }
-                );
-            }
-        }
-        return vertices;
-    }
-
-    std::vector<unsigned int> indices(int factor = 1) {
-        std::vector<unsigned int> indices;
-        auto w = (_width + factor - 1) / factor;
-        auto h = (_height + factor - 1) / factor;
-        for (int y = 0; y < h - 1; ++y) {
-            for (int x = 0; x < w - 1; ++x) {
-                int id = y * w + x;
-
-                indices.push_back(id);
-                indices.push_back(id + w);
-                indices.push_back(id + w + 1);
-                indices.push_back(id + 1);
-            }
-        }
-        return indices;
-    }
-
-    std::vector<unsigned char> pixels() {
-        auto cnt = _width * _height;
-        std::vector<unsigned char> pixels(cnt);
-        auto r = 0.5f / _amp;
-        for (int i = 0; i < cnt; ++i) {
-            pixels[i] =
-                static_cast<unsigned char>((_map[i] * r + 0.5f) * 255.0f);
-        }
-        return pixels;
-    }
+    std::vector<Vertex> vertices(int factor = 1);
+    std::vector<unsigned int> indices(int factor = 1);
+    std::vector<unsigned char> pixels();
 
     int width() { return _width; }
     int height() { return _height; }
-    std::vector<float> &map() { return _map; }
+    std::vector<float> &heights() { return _heights; }
+    std::vector<glm::vec3> &normals() { return _normals; }
 
 private:
     int _width, _height;
     float _x_rate, _y_rate;
     float _freq = 0.05, _amp = 20;
     float _lacunarity = 2, _persist = 0.5;
-    std::vector<float> _map;
+
+    std::vector<float> _heights;
+    std::vector<glm::vec3> _normals;
 
     void noise_gen(Noise &noise, int oct = 1);
+    void normals_gen();
 
     struct Droplet {
         float x = 0;
@@ -120,8 +81,8 @@ private:
         float sediment = 0;
     };
 
-    float get_cell(int x, int y) const { return _map[x + y * _width]; }
-    void set_cell(int x, int y, float val) { _map[x + y * _width] = val; }
+    float get_cell(int x, int y) const { return _heights[x + y * _width]; }
+    void set_cell(int x, int y, float val) { _heights[x + y * _width] = val; }
 
     glm::vec3 calc_normal(int x, int y) const {
         int xl = std::max(x - 1, 0);
@@ -129,10 +90,10 @@ private:
         int yd = std::max(y - 1, 0);
         int yu = std::min(y + 1, _height - 1);
 
-        float hl = _map[y * _width + xl];
-        float hr = _map[y * _width + xr];
-        float hd = _map[yd * _width + x];
-        float hu = _map[yu * _width + x];
+        float hl = _heights[y * _width + xl];
+        float hr = _heights[y * _width + xr];
+        float hd = _heights[yd * _width + x];
+        float hu = _heights[yu * _width + x];
 
         glm::vec3 dx = glm::vec3(2.0f, hr - hl, 0.0f);
         glm::vec3 dy = glm::vec3(0.0f, hu - hd, 2.0f);

@@ -1,12 +1,14 @@
 #version 460 core
 in vec3 fragPos;
 in vec3 normal;
+in vec2 uv;
 
 out vec4 FragColor;
 
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform sampler2D tex;
+uniform sampler2D normTex;
 
 const float minRockH = 5.0;
 const float maxRockH = 12.0;
@@ -15,7 +17,8 @@ const float grassBlend = 0;
 void main() {
     vec3 ambient = 0.2 * lightColor;
 
-    vec3 norm = normalize(normal);
+    vec3 norm = texture(normTex, uv).xyz;
+    // vec3 norm = normalize(normal);
     vec3 lightDir = normalize(lightPos - fragPos);
 
     float diff = max(dot(norm, lightDir), 0);

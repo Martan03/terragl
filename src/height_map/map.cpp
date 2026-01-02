@@ -1,4 +1,4 @@
-#include "height_map.hpp"
+#include "map.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -9,7 +9,7 @@
 
 namespace tgl::height_map {
 
-HeightMap::HeightMap(
+Map::Map(
     int width,
     int height,
     float freq,
@@ -21,13 +21,14 @@ HeightMap::HeightMap(
     _x_rate(256.0 / width),
     _height(height),
     _y_rate(256.0 / height),
-    _map(width * height),
+    _heights(width * height),
+    _normals(width * height),
     _freq(freq),
     _amp(amp),
     _lacunarity(lacunarity),
     _persist(persist) { }
 
-void HeightMap::gen(NoiseType type, int oct) {
+void Map::gen(NoiseType type, int oct) {
     switch (type) {
     case NoiseType::Perlin:
         gen_perlin(oct);
@@ -36,19 +37,20 @@ void HeightMap::gen(NoiseType type, int oct) {
         gen_simplex(oct);
         break;
     }
+    normals_gen();
 }
 
-void HeightMap::gen_perlin(int oct) {
+void Map::gen_perlin(int oct) {
     auto perlin = Perlin();
     noise_gen(perlin, oct);
 }
 
-void HeightMap::gen_simplex(int oct) {
+void Map::gen_simplex(int oct) {
     auto simplex = Simplex();
     noise_gen(simplex, oct);
 }
 
-void HeightMap::hydro_erosion(ErosionConf conf) {
+void Map::hydro_erosion(ErosionConf conf) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dist(0, 1);
@@ -61,20 +63,83 @@ void HeightMap::hydro_erosion(ErosionConf conf) {
     }
 }
 
-void HeightMap::noise_gen(Noise &noise, int oct) {
+std::vector<Vertex> Map::vertices(int factor) {
+    std::vector<Vertex> vertices;
+    for (int y = 0; y < _height; y += factor) {
+        for (int x = 0; x < _width; x += factor) {
+            auto id = y * _width + x;
+            auto rx = float(x) * _x_rate;
+            auto ry = float(y) * _y_rate;
+            vertices.push_back(
+                { glm::vec3(rx, _heights[id], ry),
+                  calc_normal(rx, ry),
+                  glm::vec2(float(x) / _width, float(y) / _height) }
+            );
+        }
+    }
+    return vertices;
+}
+
+std::vector<unsigned> Map::indices(int factor) {
+    std::vector<unsigned int> indices;
+    auto w = (_width + factor - 1) / factor;
+    auto h = (_height + factor - 1) / factor;
+    for (int y = 0; y < h - 1; ++y) {
+        for (int x = 0; x < w - 1; ++x) {
+            int id = y * w + x;
+
+            indices.push_back(id);
+            indices.push_back(id + w);
+            indices.push_back(id + w + 1);
+            indices.push_back(id + 1);
+        }
+    }
+    return indices;
+}
+
+std::vector<unsigned char> Map::pixels() {
+    auto cnt = _width * _height;
+    std::vector<unsigned char> pixels(cnt);
+    auto r = 0.5f / _amp;
+    for (int i = 0; i < cnt; ++i) {
+        pixels[i] =
+            static_cast<unsigned char>((_heights[i] * r + 0.5f) * 255.0f);
+    }
+    return pixels;
+}
+
+void Map::noise_gen(Noise &noise, int oct) {
     for_each([&](int x, int y, int id) {
         auto rx = (float)x * _x_rate * _freq;
         auto ry = (float)y * _y_rate * _freq;
         // float val = noise.fbm(rx, ry, oct);
         // float val = noise.fbm(rx, ry, 0.5f, oct);
-        float val = noise.ridged_fbm(rx, ry, oct);
-        // float val = noise.ridged_fbm(rx, ry, 0.5f, oct);
-        _map[id] = val * _amp;
-        // _map[id] = (std::pow(val * 0.5 + 0.5, 3) * 2 - 1) * _amp;
+        // auto val = noise.deriv_fbm(rx, ry, oct);
+        float val = noise.ridged_fbm(rx, ry, 0.5f, oct);
+        // _heights[id] = val.z * _amp;
+        _heights[id] = (std::pow(val * 0.5 + 0.5, 3) * 2 - 1) * _amp;
     });
 }
 
-void HeightMap::sim_droplet(ErosionConf &conf, Droplet drop) {
+void Map::normals_gen() {
+    for_each([&](int x, int y, int id) {
+        float hl = _heights[y * _width + std::max(x - 1, 0)];
+        float hr = _heights[y * _width + std::min(x + 1, _width - 1)];
+        float hd = _heights[std::max(y - 1, 0) * _width + x];
+        float hu = _heights[std::min(y + 1, _height - 1) * _width + x];
+
+        glm::vec3 dx(2.0f, hr - hl, 0.0f);
+        glm::vec3 dy(0.0f, hu - hd, 2.0f);
+
+        auto norm = glm::normalize(glm::cross(dx, dy));
+        if (norm.y < 0) {
+            norm = -norm;
+        }
+        _normals[id] = norm;
+    });
+}
+
+void Map::sim_droplet(ErosionConf &conf, Droplet drop) {
     for (int ttl = conf.ttl; ttl >= 0 && drop.water >= 0.01f; --ttl) {
         auto x = (int)drop.x;
         auto y = (int)drop.y;
@@ -116,19 +181,19 @@ void HeightMap::sim_droplet(ErosionConf &conf, Droplet drop) {
                               : (drop.sediment - cap) * conf.deposit;
             drop.sediment -= amount;
 
-            _map[id] += amount * (1 - fx) * (1 - fy);
-            _map[id + 1] += amount * fx * (1 - fy);
-            _map[id + _width] += amount * (1 - fx) * fy;
-            _map[id + _width + 1] += amount * fx * fy;
+            _heights[id] += amount * (1 - fx) * (1 - fy);
+            _heights[id + 1] += amount * fx * (1 - fy);
+            _heights[id + _width] += amount * (1 - fx) * fy;
+            _heights[id + _width + 1] += amount * fx * fy;
         } else {
             auto amount =
                 std::min((cap - drop.sediment) * conf.erode, -delta_height);
             drop.sediment += amount;
 
-            _map[id] -= amount * (1 - fx) * (1 - fy);
-            _map[id + 1] -= amount * fx * (1 - fy);
-            _map[id + _width] -= amount * (1 - fx) * fy;
-            _map[id + _width + 1] -= amount * fx * fy;
+            _heights[id] -= amount * (1 - fx) * (1 - fy);
+            _heights[id + 1] -= amount * fx * (1 - fy);
+            _heights[id + _width] -= amount * (1 - fx) * fy;
+            _heights[id + _width + 1] -= amount * fx * fy;
         }
 
         drop.speed = std::sqrt(
@@ -140,7 +205,7 @@ void HeightMap::sim_droplet(ErosionConf &conf, Droplet drop) {
     }
 }
 
-std::tuple<float, float, float> HeightMap::calc(Droplet drop) {
+std::tuple<float, float, float> Map::calc(Droplet drop) {
     int x = (int)drop.x;
     int y = (int)drop.y;
 

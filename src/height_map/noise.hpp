@@ -8,7 +8,7 @@ enum class NoiseType { Perlin, Simplex };
 
 class Noise {
 public:
-    Noise(float lacunarity = 1.98, float persist = 0.48) :
+    Noise(float lacunarity = 1.98, float persist = 0.49) :
         _lacunarity(lacunarity), _persistance(persist) { }
 
     virtual ~Noise() = default;
@@ -18,6 +18,8 @@ public:
 
     float fbm(float x, float y, int oct);
     float fbm(float x, float y, float rot, int oct);
+
+    glm::vec3 deriv_fbm(float x, float y, int oct);
 
     float ridged_fbm(float x, float y, int oct);
     float ridged_fbm(float x, float y, float rot, int oct);
