@@ -4,6 +4,7 @@ in vec2 uv;
 
 out vec4 FragColor;
 
+uniform vec3 sunPos;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform sampler2D normTex;
@@ -39,7 +40,8 @@ void main() {
 
     vec3 norm = texture(normTex, uv).xyz;
 
-    vec3 lightDir = normalize(lightPos - fragPos);
+    vec3 lightDir = sunPos;
+    // vec3 lightDir = normalize(lightPos - fragPos);
     float diff = max(dot(norm, lightDir), 0);
     vec3 diffuse = diff * lightColor;
 

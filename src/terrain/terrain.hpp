@@ -14,7 +14,7 @@ class Terrain {
 public:
     Terrain(int width, int height);
 
-    void render(glm::mat4 view, glm::mat4 proj);
+    void render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos);
 
     void gen();
     void update();

@@ -47,7 +47,7 @@ Terrain::Terrain(int width, int height) :
     set_static_uniforms();
 }
 
-void Terrain::render(glm::mat4 view, glm::mat4 proj) {
+void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
     _program.use();
     _vao.bind();
 
@@ -67,6 +67,9 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj) {
 
     auto proj_loc = _program.uniform_loc("proj");
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
+
+    auto sun_loc = _program.uniform_loc("sunPos");
+    glUniform3f(sun_loc, sunPos.x, sunPos.y, sunPos.z);
 
     glDrawElements(GL_PATCHES, _triangle_cnt, GL_UNSIGNED_INT, 0);
 }

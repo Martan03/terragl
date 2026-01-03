@@ -21,8 +21,9 @@ void Game::render() {
     proj = glm::perspective(glm::radians(80.0f), ratio, 0.1f, 500.0f);
 
     _terrain.update();
+    _sky.update(_scene.delta());
     glEnable(GL_DEPTH_TEST);
-    _terrain.render(view, proj);
+    _terrain.render(view, proj, _sky.sunPos);
     _sky.render(view, proj);
     glDisable(GL_DEPTH_TEST);
 

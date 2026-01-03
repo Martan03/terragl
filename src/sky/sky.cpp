@@ -1,5 +1,8 @@
 #include "sky.hpp"
 
+#include <cmath>
+
+#include <glm/geometric.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace tgl::sky {
@@ -32,11 +35,24 @@ void Sky::render(glm::mat4 view, glm::mat4 proj) {
     auto proj_loc = _program.uniform_loc("proj");
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
+    auto sun_loc = _program.uniform_loc("sunPos");
+    glUniform3f(sun_loc, sunPos.x, sunPos.y, sunPos.z);
+
     glCullFace(GL_FRONT);
     glDepthFunc(GL_LEQUAL);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glCullFace(GL_BACK);
     glDepthFunc(GL_LESS);
+}
+
+void Sky::update(float delta) {
+    _dayTime += _daySpeed * delta;
+    if (_dayTime > 6.28318f)
+        _dayTime -= 6.258318f;
+
+    sunPos.x = cos(_dayTime);
+    sunPos.y = sin(_dayTime);
+    sunPos = glm::normalize(sunPos);
 }
 
 void Sky::init() {

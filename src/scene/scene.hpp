@@ -44,6 +44,7 @@ public:
 
     float mouse_x() { return _mouse_x; }
     float mouse_y() { return _mouse_y; }
+    float delta() { return _delta; }
 
 private:
     static inline Scene *_singleton = nullptr;
