@@ -13,5 +13,5 @@
 Because of a little time press, I have to prioritize a few things:
 
 - Static water (on certain height)
-- Fancy sky
+- Fancier sky (clouds and starts + moon at night)
 - Terrain reflection

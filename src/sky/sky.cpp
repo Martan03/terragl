@@ -46,6 +46,8 @@ void Sky::render(glm::mat4 view, glm::mat4 proj) {
 }
 
 void Sky::update(float delta) {
+    if (!_dayCycle)
+        return;
     _dayTime += _daySpeed * delta;
     if (_dayTime > 6.28318f)
         _dayTime -= 6.258318f;

@@ -56,6 +56,9 @@ void Game::handle_input(float delta) {
 void Game::handle_key(int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         _scene.set_state(StateType::Menu);
+
+    if (key == GLFW_KEY_P && action == GLFW_PRESS)
+        _sky.toggleDayCycle();
 }
 
 void Game::handle_mouse(float xpos, float ypos) {

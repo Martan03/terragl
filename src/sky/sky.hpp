@@ -17,6 +17,8 @@ public:
     void render(glm::mat4 view, glm::mat4 proj);
     void update(float delta);
 
+    void toggleDayCycle() { _dayCycle = !_dayCycle; }
+
 private:
     gl::Program _program;
     gl::VertexArray _vao;
@@ -25,6 +27,7 @@ private:
 
     float _dayTime = 0.0f;
     float _daySpeed = 0.1f;
+    bool _dayCycle = true;
 
     void init();
 };
