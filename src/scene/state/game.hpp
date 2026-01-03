@@ -2,6 +2,7 @@
 
 #include "../../gl/camera.hpp"
 #include "../../gui/quad/quad.hpp"
+#include "../../sky/sky.hpp"
 #include "../../terrain/terrain.hpp"
 #include "state.hpp"
 
@@ -30,6 +31,7 @@ public:
 private:
     gl::Camera _camera;
     terrain::Terrain _terrain;
+    sky::Sky _sky;
     gui::Quad _map;
 
     float _last_x = -1;

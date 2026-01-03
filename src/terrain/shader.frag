@@ -14,6 +14,8 @@ uniform sampler2D stoneTex;
 const float texScale = 0.1;
 const float contrast = 1.2;
 
+const float minGrassH = -25;
+const float maxGrassH = -15;
 const float minRockH = -5.0;
 const float maxRockH = 0.0;
 const float grassBlend = 0.1;
@@ -44,7 +46,7 @@ void main() {
     vec3 grassColor = getTriplanar(grassTex, fragPos, norm);
     vec3 rockColor = getTriplanar(stoneTex, fragPos, norm);
 
-    float lushFactor = smoothstep(-20, -10, fragPos.y);
+    float lushFactor = smoothstep(minGrassH, maxGrassH, fragPos.y);
     vec3 lushColor = grassColor * vec3(0.9, 1.1, 0.9);
     vec3 dryColor = grassColor * vec3(0.95, 0.9, 0.9);
     grassColor = mix(lushColor, dryColor, lushFactor);

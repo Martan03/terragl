@@ -23,6 +23,7 @@ void Game::render() {
     _terrain.update();
     glEnable(GL_DEPTH_TEST);
     _terrain.render(view, proj);
+    _sky.render(view, proj);
     glDisable(GL_DEPTH_TEST);
 
     _map.render();
