@@ -54,6 +54,7 @@ void Sky::update(float delta) {
 
     sunPos.x = cos(_dayTime);
     sunPos.y = sin(_dayTime);
+    sunPos.z = 0.3;
     sunPos = glm::normalize(sunPos);
 }
 

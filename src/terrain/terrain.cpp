@@ -39,8 +39,8 @@ static constexpr char DEPTH_FRAG_SHADER[]{
     0
 };
 
-const unsigned SHADOW_WIDTH = 2048;
-const unsigned SHADOW_HEIGHT = 2048;
+const unsigned SHADOW_WIDTH = 5096;
+const unsigned SHADOW_HEIGHT = 5096;
 
 Terrain::Terrain(gl::Window &window, int width, int height) :
     _window(window),
