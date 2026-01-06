@@ -34,20 +34,63 @@ static constexpr char FRAG_SHADER[]{
     0
 };
 
-Terrain::Terrain(int width, int height) :
+static constexpr char DEPTH_FRAG_SHADER[]{
+#embed "depth.frag" suffix(, )
+    0
+};
+
+const unsigned SHADOW_WIDTH = 2048;
+const unsigned SHADOW_HEIGHT = 2048;
+
+Terrain::Terrain(gl::Window &window, int width, int height) :
+    _window(window),
     _program(VERT_SHADER, TESC_SHADER, TESE_SHADER, FRAG_SHADER),
     _vbo(GL_ARRAY_BUFFER),
     _ebo(GL_ELEMENT_ARRAY_BUFFER),
+    _shadow_program(VERT_SHADER, TESC_SHADER, TESE_SHADER, DEPTH_FRAG_SHADER),
     _map(width, height),
     _normal_tex(GL_TEXTURE1),
     _grass_tex(GL_TEXTURE2),
     _stone_tex(GL_TEXTURE3) {
     init_buffers(width, height);
+    init_depth_map(SHADOW_WIDTH, SHADOW_HEIGHT);
     vertex_attrib();
     set_static_uniforms();
 }
 
+Terrain::~Terrain() {
+    if (_depth_fbo != 0) {
+        glDeleteFramebuffers(1, &_depth_fbo);
+        _depth_fbo = 0;
+    }
+}
+
 void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
+    auto scale = 150.0f;
+    auto light_proj = glm::ortho(-scale, scale, -scale, scale, 1.0f, 1000.0f);
+    auto light_view =
+        glm::lookAt(sunPos * 100.0f, glm::vec3(), glm::vec3(0, 1, 0));
+    auto light_mat = light_proj * light_view;
+
+    auto model_mat = glm::translate(glm::mat4(1), glm::vec3(-128, 0, -128));
+
+    _shadow_program.use();
+    _shadow_program.uniform("model", model_mat);
+    _shadow_program.uniform("view", light_view);
+    _shadow_program.uniform("proj", light_proj);
+
+    _height_tex.bind();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, _depth_fbo);
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    _vao.bind();
+    // glCullFace(GL_FRONT);
+    glDrawElements(GL_PATCHES, _triangle_cnt, GL_UNSIGNED_INT, 0);
+    // glCullFace(GL_BACK);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glViewport(0, 0, _window.width(), _window.height());
     _program.use();
     _vao.bind();
 
@@ -55,21 +98,13 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
     _normal_tex.bind();
     _grass_tex.bind();
     _stone_tex.bind();
+    _depth_tex.bind(GL_TEXTURE4);
 
-    auto model_mat = glm::mat4(1);
-    // model_mat = glm::scale(model_mat, glm::vec3(0.2, 0.2, 0.2));
-    model_mat = glm::translate(model_mat, glm::vec3(-128, 0, -128));
-    auto model_loc = _program.uniform_loc("model");
-    glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model_mat));
-
-    auto view_loc = _program.uniform_loc("view");
-    glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view));
-
-    auto proj_loc = _program.uniform_loc("proj");
-    glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
-
-    auto sun_loc = _program.uniform_loc("sunPos");
-    glUniform3f(sun_loc, sunPos.x, sunPos.y, sunPos.z);
+    _program.uniform("lightMat", light_mat);
+    _program.uniform("model", model_mat);
+    _program.uniform("view", view);
+    _program.uniform("proj", proj);
+    _program.uniform("sunPos", sunPos);
 
     glDrawElements(GL_PATCHES, _triangle_cnt, GL_UNSIGNED_INT, 0);
 }
@@ -130,6 +165,25 @@ void Terrain::init_buffers(int width, int height) {
     load_texture(_stone_tex, "assets/stone/Rock030_1K-JPG_Color.jpg");
 }
 
+void Terrain::init_depth_map(int width, int height) {
+    glGenFramebuffers(1, &_depth_fbo);
+    _depth_tex.bind();
+    auto t = GL_DEPTH_COMPONENT;
+    glTexImage2D(GL_TEXTURE_2D, 0, t, width, height, 0, t, GL_FLOAT, NULL);
+    _depth_tex.filter(GL_NEAREST);
+    _depth_tex.wrap(GL_CLAMP_TO_BORDER);
+    float border_col[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_col);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, _depth_fbo);
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depth_tex.get(), 0
+    );
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Terrain::vertex_attrib() {
     glVertexAttribPointer(
         0, 3, GL_FLOAT, GL_FALSE, sizeof(height_map::Vertex), (void *)0
@@ -149,16 +203,13 @@ void Terrain::vertex_attrib() {
 
 void Terrain::init_texture(gl::Texture &tex) {
     tex.bind();
-    tex.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    tex.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    tex.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    tex.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    tex.wrap(GL_CLAMP_TO_EDGE);
+    tex.filter(GL_LINEAR);
 }
 
 void Terrain::load_texture(gl::Texture &tex, const char *path) {
     tex.bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    tex.wrap(GL_REPEAT);
     glTexParameteri(
         GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
     );
@@ -227,14 +278,11 @@ void Terrain::set_static_uniforms() {
     glUniform3f(lpos_loc, 128, 128, 0);
     auto light_loc = _program.uniform_loc("lightColor");
     glUniform3f(light_loc, 1, 1, 1);
-    auto tex_loc = _program.uniform_loc("tex");
-    glUniform1i(tex_loc, 0);
-    auto norm_loc = _program.uniform_loc("normTex");
-    glUniform1i(norm_loc, 1);
-    auto grass_loc = _program.uniform_loc("grassTex");
-    glUniform1i(grass_loc, 2);
-    auto stone_loc = _program.uniform_loc("stoneTex");
-    glUniform1i(stone_loc, 3);
+    _program.uniform("tex", 0);
+    _program.uniform("normTex", 1);
+    _program.uniform("grassTex", 2);
+    _program.uniform("stoneTex", 3);
+    _program.uniform("depthTex", 4);
 }
 
 } // namespace tgl::terrain

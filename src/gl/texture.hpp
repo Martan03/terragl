@@ -24,12 +24,24 @@ public:
         glBindTexture(_kind, _id);
     }
     void bind(GLenum unit) {
-        _unit = unit;
-        bind();
+        glActiveTexture(unit);
+        glBindTexture(_kind, _id);
     }
 
     void param(GLenum name, GLenum val) const {
         glTexParameteri(_kind, name, val);
+    }
+
+    /// Sets both min and mag filter of the texture to given type
+    void filter(GLenum type) {
+        param(GL_TEXTURE_MIN_FILTER, type);
+        param(GL_TEXTURE_MAG_FILTER, type);
+    }
+
+    /// Sets both wrap S and wrap T of the texture to given type
+    void wrap(GLenum type) {
+        param(GL_TEXTURE_WRAP_S, type);
+        param(GL_TEXTURE_WRAP_T, type);
     }
 
 private:

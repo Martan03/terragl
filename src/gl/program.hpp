@@ -5,6 +5,9 @@
 #include "helper.hpp"
 #include "shader.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace tgl::gl {
 
 DEL_GL_STRUCT(Program, glDeleteProgram);
@@ -40,6 +43,37 @@ public:
 
     GLint uniform_loc(const char *name) const {
         return glGetUniformLocation(_id, name);
+    }
+
+    void uniform(const char *name, GLint value) {
+        glUniform1i(uniform_loc(name), value);
+    }
+
+    void uniform(const char *name, glm::vec2 &value) {
+        glUniform2fv(uniform_loc(name), 1, glm::value_ptr(value));
+    }
+
+    void uniform(const char *name, glm::vec3 &value) {
+        glUniform3fv(uniform_loc(name), 1, glm::value_ptr(value));
+    }
+
+    void uniform(const char *name, glm::vec4 &value) {
+        glUniform4fv(uniform_loc(name), 1, glm::value_ptr(value));
+    }
+
+    void uniform(const char *name, glm::mat2 &value, bool transpose = false) {
+        auto loc = uniform_loc(name);
+        glUniformMatrix2fv(loc, 1, transpose, glm::value_ptr(value));
+    }
+
+    void uniform(const char *name, glm::mat3 &value, bool transpose = false) {
+        auto loc = uniform_loc(name);
+        glUniformMatrix3fv(loc, 1, transpose, glm::value_ptr(value));
+    }
+
+    void uniform(const char *name, glm::mat4 &value, bool transpose = false) {
+        auto loc = uniform_loc(name);
+        glUniformMatrix4fv(loc, 1, transpose, glm::value_ptr(value));
     }
 
 private:

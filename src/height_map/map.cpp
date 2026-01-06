@@ -130,10 +130,7 @@ void Map::normals_gen() {
         glm::vec3 dx(2.0f, hr - hl, 0.0f);
         glm::vec3 dy(0.0f, hu - hd, 2.0f);
 
-        auto norm = glm::normalize(glm::cross(dx, dy));
-        if (norm.y < 0) {
-            norm = -norm;
-        }
+        auto norm = glm::normalize(glm::cross(dy, dx));
         _normals[id] = norm;
     });
 }

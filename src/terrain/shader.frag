@@ -1,5 +1,6 @@
 #version 460 core
 in vec3 fragPos;
+in vec4 fragPosLight;
 in vec2 uv;
 
 out vec4 FragColor;
@@ -11,6 +12,8 @@ uniform sampler2D normTex;
 
 uniform sampler2D grassTex;
 uniform sampler2D stoneTex;
+
+uniform sampler2D depthTex;
 
 const float texScale = 0.1;
 const float contrast = 1.2;
@@ -35,15 +38,39 @@ vec3 getTriplanar(sampler2D tex, vec3 pos, vec3 norm) {
     return (res - 0.5) * contrast + 0.5;
 }
 
+float shadowCalc(vec4 pos, vec3 norm) {
+    vec3 projPos = pos.xyz / pos.w;
+    projPos = projPos * 0.5 + 0.5;
+    if (projPos.z > 1.0 || sunPos.y < 0)
+        return 0.0;
+
+    float bias = max(0.005 * (1.0 - dot(norm, sunPos)), 0.001);
+    // bias = 0.001;
+    vec2 tsize = 1.0 / textureSize(depthTex, 0);
+
+    float shadow = 0.0;
+    for (int x = -1; x <= 1; ++x) {
+        for (int y = -1; y <= 1; ++y) {
+            float pcf = texture(depthTex, projPos.xy + vec2(x, y) * tsize).r;
+            shadow += (projPos.z - bias > pcf) ? 1.0 : 0.0;
+        }
+    }
+    return shadow / 9.0;
+}
+
 void main() {
     vec3 ambient = 0.2 * lightColor;
 
-    vec3 norm = texture(normTex, uv).xyz;
+    vec3 norm = normalize(texture(normTex, uv).xyz);
 
-    vec3 lightDir = sunPos;
+    vec3 lightDir = normalize(sunPos);
     // vec3 lightDir = normalize(lightPos - fragPos);
-    float diff = max(dot(norm, lightDir), 0);
-    vec3 diffuse = diff * lightColor;
+    float diff = dot(norm, lightDir);
+    float shadow = 1.0;
+    if (diff > 0.0) {
+        shadow = shadowCalc(fragPosLight, norm);
+    }
+    vec3 diffuse = max(diff, 0.0) * (1.0 - shadow) * lightColor;
 
     vec3 grassColor = getTriplanar(grassTex, fragPos, norm);
     vec3 rockColor = getTriplanar(stoneTex, fragPos, norm);

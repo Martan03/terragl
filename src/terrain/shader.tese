@@ -5,8 +5,10 @@ in vec3 tPos[];
 in vec2 tUv[];
 
 out vec3 fragPos;
+out vec4 fragPosLight;
 out vec2 uv;
 
+uniform mat4 lightMat;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
@@ -26,6 +28,7 @@ void main() {
 
     vec4 col = texture(tex, uv);
     fragPos = vec3(model * vec4(pos.x, col.r, pos.z, 1.0));
+    fragPosLight = lightMat * vec4(fragPos, 1.0);
 
     gl_Position = proj * view * vec4(fragPos, 1.0);
 }
