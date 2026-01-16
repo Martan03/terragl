@@ -139,7 +139,7 @@ void Terrain::init_buffers(int width, int height) {
     std::cout << "Noise start" << std::endl;
     _map.gen(_noise, 15);
     std::cout << "Noise end" << std::endl;
-    // _map.hydro_erosion();
+    _map.hydro_erosion();
 
     gen();
     _ebo.bind();

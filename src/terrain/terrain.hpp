@@ -25,7 +25,11 @@ public:
 
     height_map::Map &map() { return _map; }
     gl::Texture &texture() { return _depth_tex; }
+    gl::Texture &height_texture() { return _height_tex; }
     gl::Texture &normal_texture() { return _normal_tex; }
+
+    gl::VertexArray &vao() { return _vao; }
+    unsigned triangle_cnt() { return _triangle_cnt; }
 
 private:
     gl::Window &_window;

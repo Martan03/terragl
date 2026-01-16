@@ -40,7 +40,7 @@ void Quad::render() {
     _program.use();
     _vao.bind();
     if (_use_tex) {
-        _texture->bind();
+        _texture->bind(GL_TEXTURE0);
     }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }

@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <queue>
 #include <random>
+#include <unordered_map>
 
 #include "perlin.hpp"
 #include "simplex.hpp"
@@ -23,6 +25,7 @@ Map::Map(
     _y_rate(256.0 / height),
     _heights(width * height),
     _normals(width * height),
+    _water(width * height, -_amp),
     _freq(freq),
     _amp(amp),
     _lacunarity(lacunarity),
@@ -55,12 +58,66 @@ void Map::hydro_erosion(ErosionConf conf) {
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dist(0, 1);
 
+    std::unordered_map<int, float> droplets;
     for (int i = 0; i < conf.droplets; ++i) {
         float x = dist(gen) * (_width - 1);
         float y = dist(gen) * (_height - 1);
         auto droplet = Droplet{ x, y };
-        sim_droplet(conf, droplet);
+        auto pos = sim_droplet(conf, droplet);
+        auto id = (int)pos.y * _width + (int)pos.x;
+        droplets[id] += 1.0;
     }
+
+    // for (auto const &[index, count] : droplets) {
+    //     if (index < 0 || index >= _water.size() || count < conf.lake_tresh)
+    //         continue;
+    //     int x = index % _width, y = index / _width;
+    //     // if (!is_local_min(x, y))
+    //     //     continue;
+    //     float level = _heights[index] + (count * conf.depth_scale);
+    //     level = std::min(find_spill(x, y), level);
+    //     process_lake(x, y, level);
+    // }
+
+    for (auto const &[id, count] : droplets) {
+        if (id < 0 || id > _water.size() || count < conf.lake_tresh)
+            continue;
+
+        float level = _heights[id] + count * conf.depth_scale;
+        process_lake(id, level);
+    }
+
+    // for (auto const &[id, count] : droplets) {
+    //     if (id < 0 || id >= _water.size() || count < conf.lake_tresh)
+    //         continue;
+    //     float level = _heights[id] + count * conf.depth_scale;
+    //     _water[id] = level;
+    //     if (id - 1 >= 0)
+    //         _water[id - 1] = level;
+    //     if (id + 1 < _water.size())
+    //         _water[id + 1] = level;
+    //     if (id + _width < _water.size())
+    //         _water[id + _width] = level;
+    //     if (id + _width - 1 < _water.size())
+    //         _water[id + _width - 1] = level;
+    //     if (id + _width + 1 < _water.size())
+    //         _water[id + _width + 1] = level;
+    //     if (id - _width >= 0)
+    //         _water[id - _width] = level;
+    //     if (id - _width - 1 >= 0)
+    //         _water[id - _width - 1] = level;
+    //     if (id - _width + 1 >= 0)
+    //         _water[id - _width + 1] = level;
+    // }
+
+    // auto max = 0.0001f;
+    // for (int id = 0; id < _width * _height; ++id) {
+    //     max = std::max(max, _water[id]);
+    // }
+
+    // for (int id = 0; id < _width * _height; ++id) {
+    //     _water[id] /= max;
+    // }
 }
 
 std::vector<Vertex> Map::vertices(int factor) {
@@ -135,16 +192,14 @@ void Map::normals_gen() {
     });
 }
 
-void Map::sim_droplet(ErosionConf &conf, Droplet drop) {
+glm::vec2 Map::sim_droplet(ErosionConf &conf, Droplet drop) {
     for (int ttl = conf.ttl; ttl >= 0 && drop.water >= 0.01f; --ttl) {
-        auto x = (int)drop.x;
-        auto y = (int)drop.y;
+        auto x = (int)drop.x, y = (int)drop.y;
         if (x < 0 || x >= _width - 1 || y < 0 || y >= _height - 1)
-            break;
+            return glm::vec2(-1, -1);
 
         auto id = x + y * _width;
-        auto fx = drop.x - x;
-        auto fy = drop.y - y;
+        auto fx = drop.x - x, fy = drop.y - y;
 
         auto [height, grad_x, grad_y] = calc(drop);
         drop.dir_x = drop.dir_x * conf.inertia - grad_x * (1 - conf.inertia);
@@ -199,6 +254,7 @@ void Map::sim_droplet(ErosionConf &conf, Droplet drop) {
         );
         drop.water *= (1 - conf.evaporate);
     }
+    return glm::vec2(drop.x, drop.y);
 }
 
 std::tuple<float, float, float> Map::calc(Droplet drop) {
@@ -219,6 +275,94 @@ std::tuple<float, float, float> Map::calc(Droplet drop) {
     float grad_y = (h01 - h00) * (1 - fx) + (h11 - h10) * fx;
 
     return { height, grad_x, grad_y };
+}
+
+bool Map::is_local_min(int x, int y) {
+    int dx[] = { 0, 0, 1, -1 };
+    int dy[] = { 1, -1, 0, 0 };
+
+    auto height = _heights[y * _width + x];
+    for (int i = 0; i < 4; ++i) {
+        auto nx = x + dx[i], ny = y + dy[i];
+        if (nx < 0 || nx >= _width || ny < 0 || ny >= _height) {
+            continue;
+        }
+
+        auto idx = ny * _width + nx;
+        if (_heights[idx] < height)
+            return false;
+    }
+    return true;
+}
+
+float Map::find_spill(int x, int y) {
+    std::vector<bool> closed(_width * _height, false);
+    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> open;
+
+    auto id = y * _width + x;
+    float max_height = _heights[id];
+    open.push({ x, y, max_height });
+    closed[id] = true;
+
+    while (!open.empty()) {
+        auto cur = open.top();
+        open.pop();
+
+        max_height = std::max(max_height, cur.h);
+        if (cur.x == 0 || cur.x == _width - 1 || cur.y == 0 ||
+            cur.y == _height - 1) {
+            return max_height;
+        }
+
+        int dx[] = { 0, 0, 1, -1 };
+        int dy[] = { 1, -1, 0, 0 };
+        for (int i = 0; i < 4; ++i) {
+            auto nx = cur.x + dx[i], ny = cur.y + dy[i];
+            if (nx < 0 || nx >= _width || ny < 0 || ny >= _height) {
+                continue;
+            }
+
+            auto idx = ny * _width + nx;
+            if (closed[idx])
+                continue;
+
+            closed[idx] = true;
+            if (_heights[idx] < max_height) {
+                return max_height;
+            }
+            open.push({ nx, ny, _heights[idx] });
+        }
+    }
+    return max_height;
+}
+
+void Map::process_lake(int id, float level) {
+    if (_water[id] <= -_amp + 0.01)
+        return;
+
+    std::queue<int> open;
+    open.push(id);
+    _water[id] = level;
+
+    while (!open.empty()) {
+        id = open.front();
+        open.pop();
+
+        int cx = id % _width, cy = id / _width;
+        int dx[] = { -1, 1, 0, 0 };
+        int dy[] = { 0, 0, -1, 1 };
+        for (int i = 0; i < 4; ++i) {
+            int nx = cx + dx[i], ny = cy + dy[i];
+            if (nx < 0 || nx >= _width || ny < 0 || ny >= _height)
+                continue;
+
+            int idx = ny * _width + nx;
+            if (_heights[idx] < level && _water[idx] <= -_amp + 0.01) {
+                _water[idx] = level;
+                open.push(idx);
+            }
+        }
+    }
 }
 
 } // namespace tgl::height_map

@@ -13,5 +13,6 @@
 Because of a little time press, I have to prioritize a few things:
 
 - Static water (on certain height)
-- Fancier sky (clouds and starts + moon at night)
+- Fancier sky (clouds and stars + moon at night)
 - Terrain reflection
+- Ambient light based on daytime

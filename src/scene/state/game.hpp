@@ -4,6 +4,7 @@
 #include "../../gui/quad/quad.hpp"
 #include "../../sky/sky.hpp"
 #include "../../terrain/terrain.hpp"
+#include "../../water/water.hpp"
 #include "state.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -32,6 +33,7 @@ private:
     gl::Camera _camera;
     terrain::Terrain _terrain;
     sky::Sky _sky;
+    water::Water _water;
     gui::Quad _map;
 
     float _last_x = -1;

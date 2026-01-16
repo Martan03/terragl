@@ -13,9 +13,9 @@ namespace tgl::height_map {
 
 struct ErosionConf {
     // Number of droplets to simulate
-    int droplets = 250000;
+    int droplets = 100000;
     // TTL of droplet (steps it lives for)
-    int ttl = 30;
+    int ttl = 90;
     float inertia = 0.05f;
     // Maximum sediment capactiy droplet can carry
     float sediment_cap = 4;
@@ -27,6 +27,10 @@ struct ErosionConf {
     // Speed of droplet evaporating
     float evaporate = 0.01f;
     float gravity = 4.0f;
+    // Treshold for the amount of droplets to create a lake
+    int lake_tresh = 5.0f;
+    // Depth scale per droplet in the lake
+    float depth_scale = 1.f;
 };
 
 struct Vertex {
@@ -55,8 +59,11 @@ public:
 
     int width() { return _width; }
     int height() { return _height; }
+    float amp() { return _amp; }
+
     std::vector<float> &heights() { return _heights; }
     std::vector<glm::vec3> &normals() { return _normals; }
+    std::vector<float> &water() { return _water; }
 
 private:
     int _width, _height;
@@ -66,18 +73,25 @@ private:
 
     std::vector<float> _heights;
     std::vector<glm::vec3> _normals;
+    std::vector<float> _water;
 
     void noise_gen(Noise &noise, int oct = 1);
     void normals_gen();
 
     struct Droplet {
-        float x = 0;
-        float y = 0;
-        float dir_x = 0;
-        float dir_y = 0;
+        float x = 0, y = 0;
+        float dir_x = 0, dir_y = 0;
         float speed = 1;
         float water = 1;
         float sediment = 0;
+    };
+
+    struct Node {
+        int x, y;
+        float h;
+
+        bool operator>(const Node &other) const { return h > other.h; }
+        bool operator<(const Node &other) const { return h < other.h; }
     };
 
     float get_cell(int x, int y) const { return _heights[x + y * _width]; }
@@ -99,8 +113,12 @@ private:
         return glm::normalize(glm::cross(dy, dx));
     }
 
-    void sim_droplet(ErosionConf &conf, Droplet droplet);
+    glm::vec2 sim_droplet(ErosionConf &conf, Droplet droplet);
     std::tuple<float, float, float> calc(Droplet droplet);
+
+    bool is_local_min(int x, int y);
+    float find_spill(int x, int y);
+    void process_lake(int id, float level);
 
     template<typename Func> void for_each(Func func) {
         for (int y = 0; y < _height; ++y) {

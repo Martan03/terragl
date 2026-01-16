@@ -12,7 +12,8 @@ Game::Game(Scene &scene) :
     State(scene),
     _camera(glm::vec3(0, 25, 0)),
     _terrain(scene.window(), 1024, 1024),
-    _map(glm::vec2(0, 0), glm::vec2(250, 250), &_terrain.texture()) { }
+    _water(_terrain),
+    _map(glm::vec2(0, 0), glm::vec2(250, 250), &_water.texture()) { }
 
 void Game::render() {
     auto view = _camera.view();
@@ -25,6 +26,7 @@ void Game::render() {
     glEnable(GL_DEPTH_TEST);
     _terrain.render(view, proj, _sky.sunPos);
     _sky.render(view, proj);
+    _water.render(view, proj, _sky.sunPos);
     glDisable(GL_DEPTH_TEST);
 
     _map.render();
