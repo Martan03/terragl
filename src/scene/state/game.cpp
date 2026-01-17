@@ -13,7 +13,7 @@ Game::Game(Scene &scene) :
     _camera(glm::vec3(0, 25, 0)),
     _terrain(scene.window(), 1024, 1024),
     _water(_terrain),
-    _map(glm::vec2(0, 0), glm::vec2(250, 250), &_water.texture()) { }
+    _map(glm::vec2(0, 0), glm::vec2(250, 250), &_terrain.texture()) { }
 
 void Game::render() {
     auto view = _camera.view();

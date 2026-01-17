@@ -1,6 +1,5 @@
 #version 460 core
 in float depth;
-in float waterHeight;
 in vec3 fragPos;
 
 out vec4 FragColor;
@@ -9,9 +8,9 @@ uniform float amp;
 uniform vec3 sunPos;
 
 void main() {
-    // if (waterHeight <= -amp + 0.1 || depth <= 0.05) discard;
+    if (depth <= 0) discard;
 
-    float alpha = clamp(depth * 2.0, 0.0, 0.8);
+    float alpha = clamp(depth * 2.0, 0.4, 0.8);
 
     vec3 deepColor = vec3(0.02, 0.1, 0.2);
     vec3 shallowColor = vec3(0.1, 0.5, 0.6);

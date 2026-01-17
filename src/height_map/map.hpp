@@ -27,10 +27,10 @@ struct ErosionConf {
     // Speed of droplet evaporating
     float evaporate = 0.01f;
     float gravity = 4.0f;
-    // Treshold for the amount of droplets to create a lake
-    int lake_tresh = 5.0f;
+    // Treshold for the amount of water to create a lake
+    int lake_tresh = 15;
     // Depth scale per droplet in the lake
-    float depth_scale = 1.f;
+    float depth_scale = 0.0001f;
 };
 
 struct Vertex {
@@ -113,10 +113,10 @@ private:
         return glm::normalize(glm::cross(dy, dx));
     }
 
-    glm::vec2 sim_droplet(ErosionConf &conf, Droplet droplet);
+    glm::vec2 sim_droplet(ErosionConf &conf, Droplet &droplet);
     std::tuple<float, float, float> calc(Droplet droplet);
 
-    bool is_local_min(int x, int y);
+    int find_sink(int x, int y);
     float find_spill(int x, int y);
     void process_lake(int id, float level);
 

@@ -5,7 +5,6 @@ in vec3 tPos[];
 in vec2 tUv[];
 
 out float depth;
-// out float waterHeight;
 out vec3 fragPos;
 
 uniform sampler2D heightTex;
@@ -32,10 +31,7 @@ void main() {
     // // Displacement logic: simple Gerstner wave approximation
     // // float wave = sin(uv.x * 20.0 + time) * cos(uv.y * 20.0 + time) * 0.2;
 
-    // float finalY = (wdepth > -amp + 0.1) ? wdepth : height - 10.0;
-
     depth = wdepth - height;
-    // waterHeight = wdepth;
     fragPos = vec3(model * vec4(pos.x, wdepth, pos.z, 1.0));
     gl_Position = proj * view * vec4(fragPos, 1.0);
 }
