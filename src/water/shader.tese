@@ -11,7 +11,7 @@ uniform sampler2D heightTex;
 uniform sampler2D waterTex;
 uniform mat4 model, view, proj;
 uniform float amp;
-// uniform float time;
+uniform float time;
 
 void main() {
     float u = gl_TessCoord.x;
@@ -29,7 +29,9 @@ void main() {
     float wdepth = texture(waterTex, uv).r;
 
     // // Displacement logic: simple Gerstner wave approximation
-    // // float wave = sin(uv.x * 20.0 + time) * cos(uv.y * 20.0 + time) * 0.2;
+    float wave = (sin(uv.x + time) * cos(uv.y + time) + 1) * 0.1;
+    if (wdepth > -amp)
+        wdepth += wave;
 
     depth = wdepth - height;
     fragPos = vec3(model * vec4(pos.x, wdepth, pos.z, 1.0));

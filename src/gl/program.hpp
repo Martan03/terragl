@@ -49,6 +49,10 @@ public:
         glUniform1i(uniform_loc(name), value);
     }
 
+    void uniform(const char *name, GLfloat value) {
+        glUniform1f(uniform_loc(name), value);
+    }
+
     void uniform(const char *name, glm::vec2 &value) {
         glUniform2fv(uniform_loc(name), 1, glm::value_ptr(value));
     }

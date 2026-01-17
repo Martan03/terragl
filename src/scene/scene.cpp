@@ -60,6 +60,10 @@ void Scene::set_state(StateType type) {
     _active->resize();
 }
 
+float Scene::time() {
+    return float(glfwGetTime());
+}
+
 void Scene::setup_win() {
     glfwSetWindowUserPointer(_window.get(), this);
 

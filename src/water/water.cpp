@@ -29,7 +29,9 @@ Water::Water(terrain::Terrain &terrain) :
     init();
 }
 
-void Water::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
+void Water::render(
+    glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos, float time
+) {
     _program.use();
     _terrain.height_texture().bind(GL_TEXTURE0);
     _tex.bind();
@@ -39,6 +41,7 @@ void Water::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
     _program.uniform("view", view);
     _program.uniform("proj", proj);
     _program.uniform("sunPos", sunPos);
+    _program.uniform("time", time);
 
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);

@@ -26,7 +26,7 @@ void Game::render() {
     glEnable(GL_DEPTH_TEST);
     _terrain.render(view, proj, _sky.sunPos);
     _sky.render(view, proj);
-    _water.render(view, proj, _sky.sunPos);
+    _water.render(view, proj, _sky.sunPos, _scene.time());
     glDisable(GL_DEPTH_TEST);
 
     _map.render();
