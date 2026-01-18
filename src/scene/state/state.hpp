@@ -12,6 +12,7 @@ public:
     virtual ~State() = default;
 
     virtual void render() = 0;
+    virtual void update() { };
 
     virtual void resize() { };
 
