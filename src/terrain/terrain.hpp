@@ -28,7 +28,7 @@ public:
     gl::Texture &height_texture() { return _height_tex; }
     gl::Texture &normal_texture() { return _normal_tex; }
     gl::Texture &depth_texture() { return _depth_tex; }
-    
+
     glm::mat4 &light_matrix() { return _light_mat; }
 
     gl::VertexArray &vao() { return _vao; }

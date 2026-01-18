@@ -4,6 +4,7 @@
 
 #include "../gl/program.hpp"
 #include "glad/gl.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -218,7 +219,7 @@ void Terrain::load_texture(gl::Texture &tex, const char *path) {
     auto data = stbi_load(path, &w, &h, &channels, 0);
     if (data) {
         glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            GL_TEXTURE_2D, 0, GL_SRGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data
         );
         glGenerateMipmap(GL_TEXTURE_2D);
     }
