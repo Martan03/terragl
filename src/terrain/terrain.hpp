@@ -24,9 +24,12 @@ public:
     void set_noise(height_map::NoiseType type);
 
     height_map::Map &map() { return _map; }
-    gl::Texture &texture() { return _depth_tex; }
+    gl::Texture &texture() { return _noise_tex; }
     gl::Texture &height_texture() { return _height_tex; }
     gl::Texture &normal_texture() { return _normal_tex; }
+    gl::Texture &depth_texture() { return _depth_tex; }
+    
+    glm::mat4 &light_matrix() { return _light_mat; }
 
     gl::VertexArray &vao() { return _vao; }
     unsigned triangle_cnt() { return _triangle_cnt; }
@@ -42,6 +45,7 @@ private:
     gl::Program _shadow_program;
     GLuint _depth_fbo;
     gl::Texture _depth_tex;
+    glm::mat4 _light_mat;
 
     height_map::NoiseType _noise = height_map::NoiseType::Perlin;
 

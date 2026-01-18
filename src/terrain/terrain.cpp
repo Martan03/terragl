@@ -70,7 +70,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
     auto light_proj = glm::ortho(-scale, scale, -scale, scale, 1.0f, 1000.0f);
     auto light_view =
         glm::lookAt(sunPos * 100.0f, glm::vec3(), glm::vec3(0, 1, 0));
-    auto light_mat = light_proj * light_view;
+    _light_mat = light_proj * light_view;
 
     auto model_mat = glm::translate(glm::mat4(1), glm::vec3(-128, 0, -128));
 
@@ -98,7 +98,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
     _stone_tex.bind();
     _depth_tex.bind(GL_TEXTURE4);
 
-    _program.uniform("lightMat", light_mat);
+    _program.uniform("lightMat", _light_mat);
     _program.uniform("model", model_mat);
     _program.uniform("view", view);
     _program.uniform("proj", proj);

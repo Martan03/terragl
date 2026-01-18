@@ -6,10 +6,11 @@ in vec2 tUv[];
 
 out float depth;
 out vec3 fragPos;
+out vec4 fragPosLight;
 
 uniform sampler2D heightTex;
 uniform sampler2D waterTex;
-uniform mat4 model, view, proj;
+uniform mat4 lightMat, model, view, proj;
 uniform float amp;
 uniform float time;
 
@@ -28,12 +29,12 @@ void main() {
     float height = texture(heightTex, uv).r;
     float wdepth = texture(waterTex, uv).r;
 
-    // // Displacement logic: simple Gerstner wave approximation
     float wave = (sin(uv.x + time) * cos(uv.y + time) + 1) * 0.1;
     if (wdepth > -amp)
         wdepth += wave;
 
     depth = wdepth - height;
     fragPos = vec3(model * vec4(pos.x, wdepth, pos.z, 1.0));
+    fragPosLight = lightMat * vec4(fragPos, 1.0);
     gl_Position = proj * view * vec4(fragPos, 1.0);
 }

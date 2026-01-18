@@ -35,11 +35,13 @@ void Water::render(
 ) {
     _program.use();
     _terrain.height_texture().bind(GL_TEXTURE0);
+    _terrain.depth_texture().bind(GL_TEXTURE2);
     _tex.bind();
 
     auto model_mat = glm::translate(glm::mat4(1), glm::vec3(-128, 0, -128));
     _program.uniform("model", model_mat);
     _program.uniform("view", view);
+    _program.uniform("lightMat", _terrain.light_matrix());
     _program.uniform("proj", proj);
     _program.uniform("sunPos", sunPos);
     _program.uniform("time", time);
@@ -57,6 +59,7 @@ void Water::init() {
     _program.use();
     _program.uniform("heightTex", 0);
     _program.uniform("waterTex", 1);
+    _program.uniform("depthTex", 2);
     auto lightCol = glm::vec3(1, 1, 1);
     _program.uniform("lightColor", lightCol);
     _program.uniform("amp", _terrain.map().amp());
