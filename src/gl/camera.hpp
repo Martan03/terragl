@@ -22,6 +22,7 @@ public:
     Camera(glm::vec3 pos);
 
     glm::mat4 view() { return glm::lookAt(_pos, _pos + _dir, _up); }
+    glm::vec3 &position() { return _pos; }
 
     void process_move(glm::vec2 move, float delta);
 

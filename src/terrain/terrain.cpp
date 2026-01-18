@@ -85,9 +85,7 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glClear(GL_DEPTH_BUFFER_BIT);
     _vao.bind();
-    // glCullFace(GL_FRONT);
     glDrawElements(GL_PATCHES, _triangle_cnt, GL_UNSIGNED_INT, 0);
-    // glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glViewport(0, 0, _window.width(), _window.height());
@@ -274,8 +272,6 @@ void Terrain::gen_noise_tex() {
 
 void Terrain::set_static_uniforms() {
     _program.use();
-    auto lpos_loc = _program.uniform_loc("lightPos");
-    glUniform3f(lpos_loc, 128, 128, 0);
     auto light_loc = _program.uniform_loc("lightColor");
     glUniform3f(light_loc, 1, 1, 1);
     _program.uniform("tex", 0);

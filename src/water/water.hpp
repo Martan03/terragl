@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../gl/camera.hpp"
 #include "../gl/program.hpp"
 #include "../gl/texture.hpp"
 #include "../terrain/terrain.hpp"
@@ -10,13 +11,14 @@ namespace tgl::water {
 
 class Water {
 public:
-    Water(terrain::Terrain &terrain);
+    Water(gl::Camera &camera, terrain::Terrain &terrain);
 
     void render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos, float time);
 
     gl::Texture &texture() { return _tex; }
 
 private:
+    gl::Camera &_camera;
     terrain::Terrain &_terrain;
 
     gl::Program _program;

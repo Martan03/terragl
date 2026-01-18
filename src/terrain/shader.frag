@@ -6,7 +6,6 @@ in vec2 uv;
 out vec4 FragColor;
 
 uniform vec3 sunPos;
-uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform sampler2D normTex;
 
@@ -45,7 +44,6 @@ float shadowCalc(vec4 pos, vec3 norm) {
         return 0.0;
 
     float bias = max(0.005 * (1.0 - dot(norm, sunPos)), 0.001);
-    // bias = 0.001;
     vec2 tsize = 1.0 / textureSize(depthTex, 0);
 
     float shadow = 0.0;
@@ -64,7 +62,6 @@ void main() {
     vec3 norm = normalize(texture(normTex, uv).xyz);
 
     vec3 lightDir = normalize(sunPos);
-    // vec3 lightDir = normalize(lightPos - fragPos);
     float diff = dot(norm, lightDir);
     float shadow = 1.0;
     if (diff > 0.0) {

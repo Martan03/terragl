@@ -22,7 +22,8 @@ static constexpr char FRAG_SHADER[]{
     0
 };
 
-Water::Water(terrain::Terrain &terrain) :
+Water::Water(gl::Camera &camera, terrain::Terrain &terrain) :
+    _camera(camera),
     _terrain(terrain),
     _program(VERT_SHADER, TESC_SHADER, TESE_SHADER, FRAG_SHADER),
     _tex(GL_TEXTURE1) {
@@ -42,6 +43,7 @@ void Water::render(
     _program.uniform("proj", proj);
     _program.uniform("sunPos", sunPos);
     _program.uniform("time", time);
+    _program.uniform("viewPos", _camera.position());
 
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
@@ -55,6 +57,8 @@ void Water::init() {
     _program.use();
     _program.uniform("heightTex", 0);
     _program.uniform("waterTex", 1);
+    auto lightCol = glm::vec3(1, 1, 1);
+    _program.uniform("lightColor", lightCol);
     _program.uniform("amp", _terrain.map().amp());
     gen_tex();
     _tex.wrap(GL_CLAMP_TO_EDGE);
