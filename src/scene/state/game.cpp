@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include <iostream>
+
 #include "../scene.hpp"
 
 #if true
@@ -43,8 +45,8 @@ void Game::resize() {
 
 void Game::handle_input(float delta) {
     auto win = _scene.window().get();
-    auto move = glm::vec2(0, 0);
 
+    auto move = glm::vec2(0, 0);
     if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS)
         move.y += 1;
     if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS)
@@ -53,9 +55,16 @@ void Game::handle_input(float delta) {
         move.x -= 1;
     if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS)
         move.x += 1;
-
     if (move.y != 0 || move.x != 0)
         _camera.process_move(move, delta);
+
+    auto fly = 0.0f;
+    if (glfwGetKey(win, GLFW_KEY_SPACE) == GLFW_PRESS)
+        fly += 1.0f;
+    if (glfwGetKey(win, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        fly -= 1.0f;
+    if (fly != 0)
+        _camera.process_fly(fly, delta);
 }
 
 void Game::handle_key(int key, int scancode, int action, int mods) {
@@ -91,6 +100,13 @@ void Game::handle_controllers(float delta) {
         auto move_y = -get(state, GLFW_GAMEPAD_AXIS_LEFT_Y);
         if (move_x != 0 || move_y != 0)
             _camera.process_move(glm::vec2(move_x, move_y), delta);
+
+        auto fly = 0.0f;
+        if (state.buttons[GLFW_GAMEPAD_BUTTON_A])
+            fly += 1.0f;
+        if (state.buttons[GLFW_GAMEPAD_BUTTON_B])
+            fly -= 1.0f;
+        _camera.process_fly(fly, delta);
 
         auto look_x = get(state, GLFW_GAMEPAD_AXIS_RIGHT_X);
         auto look_y = -get(state, GLFW_GAMEPAD_AXIS_RIGHT_Y);

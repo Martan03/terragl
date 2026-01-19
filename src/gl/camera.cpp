@@ -15,6 +15,11 @@ void Camera::process_move(glm::vec2 move, float delta) {
         _pos += glm::normalize(glm::cross(_dir, _up)) * move.x * velocity;
 }
 
+void Camera::process_fly(float move, float delta) {
+    float velocity = _speed * delta;
+    _pos.y += move * velocity;
+}
+
 void Camera::process_look(float xoffset, float yoffset, float sens) {
     _yaw += xoffset * sens;
     _pitch += yoffset * sens;

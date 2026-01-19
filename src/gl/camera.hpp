@@ -24,7 +24,10 @@ public:
     glm::mat4 view() { return glm::lookAt(_pos, _pos + _dir, _up); }
     glm::vec3 &position() { return _pos; }
 
+    /// Processes the fly-by camera movement
     void process_move(glm::vec2 move, float delta);
+    /// Processes the fly-by camera height movement
+    void process_fly(float move, float delta);
 
     void process_mouse(float xoffset, float yoffset) {
         process_look(xoffset, yoffset, SENS);
