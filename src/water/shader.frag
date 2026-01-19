@@ -2,6 +2,7 @@
 in float depth;
 in vec3 fragPos;
 in vec4 fragPosLight;
+in vec3 fragNormal;
 
 out vec4 FragColor;
 
@@ -13,7 +14,7 @@ uniform vec3 viewPos;
 uniform sampler2D depthTex;
 
 const float ambientStrength = 0.2;
-const float specStrength = 0.7;
+const float specStrength = 1.0;
 
 float shadowCalc(vec4 pos, vec3 norm) {
     vec3 projPos = pos.xyz / pos.w;
@@ -37,7 +38,7 @@ float shadowCalc(vec4 pos, vec3 norm) {
 void main() {
     if (depth <= 0) discard;
 
-    vec3 norm = vec3(0, 1.0, 0);
+    vec3 norm = normalize(fragNormal);
     vec3 ambient = ambientStrength * lightColor;
     float alpha = clamp(depth * 2.0, 0.4, 0.8);
 
@@ -50,15 +51,16 @@ void main() {
     vec3 diffuse = max(diff, 0.0) * (1.0 - shadow) * lightColor;
 
     vec3 viewDir = normalize(viewPos - fragPos);
-    vec3 reflectDir = reflect(-sunPos, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    diffuse += specStrength * spec * lightColor * (1.0 - shadow);
+    vec3 reflectDir = reflect(-lightDir, norm);
+
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 1024.0);
+    vec3 specular = specStrength * spec * lightColor * (1.0 - shadow);
 
     vec3 deepColor = vec3(0.02, 0.1, 0.2);
     vec3 shallowColor = vec3(0.1, 0.5, 0.6);
     float depthFact = clamp(depth / 5.0, 0.0, 1.0);
     vec3 baseColor = mix(shallowColor, deepColor, depthFact);
 
-    vec3 result = (ambient + diffuse) * baseColor;
+    vec3 result = (ambient + diffuse) * baseColor + specular;
     FragColor = vec4(result, alpha);
 }
