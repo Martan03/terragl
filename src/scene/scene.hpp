@@ -35,6 +35,9 @@ public:
 
     gl::Window &window() { return _window; }
     std::unordered_set<int> &controllers() { return _controllers; }
+    bool contoller_pressed(int jid, int key) {
+        return _controllers_states[jid].buttons[key];
+    }
 
     state::State *state(StateType type) { return _states.at(type).get(); }
     state::Game *game_state();
@@ -56,6 +59,7 @@ private:
     state::State *_active = nullptr;
 
     std::unordered_set<int> _controllers;
+    std::unordered_map<int, GLFWgamepadstate> _controllers_states;
 
     float _delta = 0;
     float _last = 0;
@@ -87,6 +91,7 @@ private:
 
     void check_controllers();
     static void joystick_callback(int jid, int event);
+    void handle_controllers();
 
     static inline Scene *get_context(GLFWwindow *win);
 };

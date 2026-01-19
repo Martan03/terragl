@@ -32,7 +32,7 @@ void Scene::main_loop() {
     while (!_window.should_close()) {
         update_delta();
         _active->handle_input(_delta);
-        _active->handle_controllers(_delta);
+        handle_controllers();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -156,6 +156,16 @@ void Scene::joystick_callback(int jid, int event) {
         _singleton->_controllers.insert(jid);
     } else if (event == GLFW_DISCONNECTED) {
         _singleton->_controllers.erase(jid);
+    }
+}
+
+void Scene::handle_controllers() {
+    for (int jid : _controllers) {
+        GLFWgamepadstate state;
+        if (!glfwGetGamepadState(jid, &state))
+            continue;
+        _active->handle_controller(state, jid);
+        _controllers_states[jid] = state;
     }
 }
 

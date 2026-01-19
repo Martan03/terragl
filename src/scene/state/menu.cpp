@@ -60,6 +60,24 @@ void Menu::handle_click(int button, int action, int mods) {
     }
 }
 
+void Menu::handle_controller(GLFWgamepadstate &state, int jid) {
+    auto isPressed = [&](int key) {
+        return state.buttons[key] && !_scene.contoller_pressed(jid, key);
+    };
+
+    for (int jid : _scene.controllers()) {
+        GLFWgamepadstate state;
+        if (!glfwGetGamepadState(jid, &state)) {
+            continue;
+        }
+
+        if (isPressed(GLFW_GAMEPAD_BUTTON_START) ||
+            isPressed(GLFW_GAMEPAD_BUTTON_B)) {
+            _scene.set_state(StateType::Game);
+        }
+    }
+}
+
 void Menu::center_buttons(std::function<void(gui::Button &)> btn_action) {
     auto cw = _scene.window().width() / 2;
     auto ch = _scene.window().height() / 2;

@@ -19,6 +19,8 @@ public:
 
     void handle_click(int button, int action, int mods) override;
 
+    void handle_controller(GLFWgamepadstate &state, int jid) override;
+
 private:
     std::vector<gui::Button> _buttons;
 

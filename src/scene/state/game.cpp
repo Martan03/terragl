@@ -1,12 +1,6 @@
 #include "game.hpp"
 
-#include <iostream>
-
 #include "../scene.hpp"
-
-#if true
-#include <GLFW/glfw3.h>
-#endif
 
 namespace tgl::scene::state {
 
@@ -14,8 +8,7 @@ Game::Game(Scene &scene) :
     State(scene),
     _camera(glm::vec3(0, 25, 0)),
     _terrain(scene.window(), 1024, 1024),
-    _water(_camera, _terrain),
-    _map(glm::vec2(0, 0), glm::vec2(250, 250), &_terrain.texture()) { }
+    _water(_camera, _terrain) { }
 
 void Game::render() {
     auto view = _camera.view();
@@ -28,19 +21,11 @@ void Game::render() {
     _sky.render(view, proj);
     _water.render(view, proj, _sky.sunPos, _scene.time());
     glDisable(GL_DEPTH_TEST);
-
-    _map.render();
 }
 
 void Game::update() {
     _terrain.update();
     _sky.update(_scene.delta());
-}
-
-void Game::resize() {
-    auto proj = _scene.window().ortho();
-    _map.set_proj(proj);
-    _map.set_pos(glm::vec2(_scene.window().width() - 255, 5));
 }
 
 void Game::handle_input(float delta) {
@@ -83,41 +68,38 @@ void Game::handle_scroll(float xoff, float yoff) {
     _camera.process_scroll(yoff);
 }
 
-void Game::handle_controllers(float delta) {
-    const float deadzone = 0.15f;
-    auto get = [&](GLFWgamepadstate &state, int key) {
-        auto val = state.axes[key];
-        return fabs(val) < deadzone ? 0 : val;
+void Game::handle_controller(GLFWgamepadstate &state, int jid) {
+    auto isPressed = [&](int key) {
+        return state.buttons[key] && !_scene.contoller_pressed(jid, key);
     };
+    auto delta = _scene.delta();
 
-    for (int jid : _scene.controllers()) {
-        GLFWgamepadstate state;
-        if (!glfwGetGamepadState(jid, &state)) {
-            continue;
-        }
+    auto move_x = getGpAxes(state, GLFW_GAMEPAD_AXIS_LEFT_X);
+    auto move_y = -getGpAxes(state, GLFW_GAMEPAD_AXIS_LEFT_Y);
+    if (move_x != 0 || move_y != 0)
+        _camera.process_move(glm::vec2(move_x, move_y), delta);
 
-        auto move_x = get(state, GLFW_GAMEPAD_AXIS_LEFT_X);
-        auto move_y = -get(state, GLFW_GAMEPAD_AXIS_LEFT_Y);
-        if (move_x != 0 || move_y != 0)
-            _camera.process_move(glm::vec2(move_x, move_y), delta);
+    auto fly = 0.0f;
+    if (state.buttons[GLFW_GAMEPAD_BUTTON_A])
+        fly += 1.0f;
+    if (state.buttons[GLFW_GAMEPAD_BUTTON_B])
+        fly -= 1.0f;
+    _camera.process_fly(fly, delta);
 
-        auto fly = 0.0f;
-        if (state.buttons[GLFW_GAMEPAD_BUTTON_A])
-            fly += 1.0f;
-        if (state.buttons[GLFW_GAMEPAD_BUTTON_B])
-            fly -= 1.0f;
-        _camera.process_fly(fly, delta);
+    auto look_x = getGpAxes(state, GLFW_GAMEPAD_AXIS_RIGHT_X);
+    auto look_y = -getGpAxes(state, GLFW_GAMEPAD_AXIS_RIGHT_Y);
+    if (look_x != 0 || look_y != 0)
+        _camera.process_controller(look_x, look_y);
 
-        auto look_x = get(state, GLFW_GAMEPAD_AXIS_RIGHT_X);
-        auto look_y = -get(state, GLFW_GAMEPAD_AXIS_RIGHT_Y);
-        if (look_x != 0 || look_y != 0)
-            _camera.process_controller(look_x, look_y);
+    auto speed = getGpAxes(state, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) + 1;
+    speed -= getGpAxes(state, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER) + 1;
+    if (speed != 0)
+        _camera.process_scroll(speed, delta);
 
-        auto speed = get(state, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) + 1;
-        speed -= get(state, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER) + 1;
-        if (speed != 0)
-            _camera.process_scroll(speed, delta);
-    }
+    if (isPressed(GLFW_GAMEPAD_BUTTON_START))
+        _scene.set_state(StateType::Menu);
+    if (isPressed(GLFW_GAMEPAD_BUTTON_Y))
+        _sky.toggleDayCycle();
 }
 
 } // namespace tgl::scene::state

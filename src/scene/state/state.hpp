@@ -1,8 +1,13 @@
 #pragma once
 
+#include <cmath>
+#if true
+#include <GLFW/glfw3.h>
+#endif
+
 namespace tgl::scene {
 class Scene;
-}
+} // namespace tgl::scene
 
 namespace tgl::scene::state {
 
@@ -23,10 +28,15 @@ public:
     virtual void handle_click(int button, int action, int mods) { };
     virtual void handle_scroll(float xoff, float yoff) { };
 
-    virtual void handle_controllers(float delta) { };
+    virtual void handle_controller(GLFWgamepadstate &state, int jid) { };
 
 protected:
     Scene &_scene;
+
+    float getGpAxes(GLFWgamepadstate &state, int key, float deadzone = 0.15f) {
+        auto val = state.axes[key];
+        return fabs(val) < deadzone ? 0.0f : val;
+    }
 };
 
 } // namespace tgl::scene::state
