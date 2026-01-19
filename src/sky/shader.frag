@@ -4,7 +4,6 @@ in vec3 texCoord;
 out vec4 FragColor;
 
 uniform vec3 sunPos;
-// const vec3 sunPos = vec3(0, 1, 0);
 const float sunIntensity = 60.0;
 
 const float PI = 3.14159;
@@ -12,12 +11,12 @@ const float PI = 3.14159;
 const float Re = 6371e3;
 const float Ra = 6420e3;
 // Rayleigh and mie scale height
-const float Hr = 8e3;
-const float Hm = 1.2e3;
+const float Hr = 7e3;
+const float Hm = 1.0e3;
 
 // Scatter coefficients (blue/violet dominant and white/grey)
-const vec3 betaR = vec3(5.5e-6, 13.0e-6, 22.4e-6);
-const vec3 betaM = vec3(21e-6);
+const vec3 betaR = vec3(1.8e-6, 11.5e-6, 38.5e-6);
+const vec3 betaM = vec3(2.0e-6);
 
 vec2 intersectSphere(vec3 origin, vec3 dir, float radius) {
     float b = dot(origin, dir);
@@ -70,7 +69,7 @@ void main() {
         }
 
         vec3 tau = betaR * (opticalDepthR + opticalDepthLightR) +
-                betaM * 1.1 * (opticalDepthM + opticalDepthLightM);
+                betaM * (opticalDepthM + opticalDepthLightM);
         vec3 attenuation = exp(-tau);
 
         totalR += hr * attenuation;
@@ -84,10 +83,15 @@ void main() {
 
     float phaseR = 3.0 / (16.0 * PI) * (1.0 + mu2);
 
-    float g = 0.99;
+    float g = 0.92;
     float phaseM = 3.0 / (8.0 * PI) * ((1.0 - g * g) * (1.0 + mu2))
             / pow(1.0 + g * g - 2.0 * g * mu, 1.5);
 
     vec3 color = totalR * betaR * phaseR + totalM * betaM * phaseM;
-    FragColor = vec4(1.0 - exp(-color * sunIntensity), 1.0);
+    vec3 finalColor = 1.0 - exp(-color * sunIntensity);
+
+    float gray = dot(finalColor, vec3(0.299, 0.587, 0.114));
+    finalColor = mix(vec3(gray), finalColor, 1.2);
+
+    FragColor = vec4(pow(finalColor, vec3(1.0 / 2.2)), 1.0);
 }
