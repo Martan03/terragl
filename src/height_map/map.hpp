@@ -13,7 +13,7 @@ namespace tgl::height_map {
 
 struct ErosionConf {
     // Number of droplets to simulate
-    int droplets = 100000;
+    int droplets = 70000;
     // TTL of droplet (steps it lives for)
     int ttl = 90;
     float inertia = 0.05f;
@@ -28,9 +28,9 @@ struct ErosionConf {
     float evaporate = 0.01f;
     float gravity = 4.0f;
     // Treshold for the amount of water to create a lake
-    int lake_tresh = 15;
+    int lake_tresh = 10;
     // Depth scale per droplet in the lake
-    float depth_scale = 0.0001f;
+    float depth_scale = 0.00015f;
 };
 
 struct Vertex {

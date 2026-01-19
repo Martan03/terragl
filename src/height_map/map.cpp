@@ -71,7 +71,7 @@ void Map::hydro_erosion(ErosionConf conf) {
     for (auto const &[id, volume] : droplets) {
         if (id >= 0 && id < _water.size() && volume >= conf.lake_tresh) {
             float level = _heights[id] + volume * conf.depth_scale;
-            // level = std::min(find_spill(id % _width, id / _width), level);
+            level = std::min(find_spill(id % _width, id / _width), level);
             process_lake(id, level);
             // _water[id] = volume;
         }
