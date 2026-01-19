@@ -48,10 +48,8 @@ void Font::generate(FT_Face face) {
         nullptr
     );
 
-    _atlas.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    _atlas.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    _atlas.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    _atlas.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    _atlas.wrap(GL_CLAMP_TO_EDGE);
+    _atlas.filter(GL_LINEAR);
 
     int x = 0;
     for (unsigned char c = 0; c < 128; ++c) {

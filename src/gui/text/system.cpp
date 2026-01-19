@@ -15,7 +15,8 @@ static constexpr char FRAG_SHADER[]{
 };
 
 TextSystem::TextSystem() :
-    _program(VERT_SHADER, FRAG_SHADER), _font("./NotoSansMono-Regular.ttf") {
+    _program(VERT_SHADER, FRAG_SHADER),
+    _font("./assets/NotoSansMono-Regular.ttf") {
     _proj_loc = _program.uniform_loc("proj");
     _col_loc = _program.uniform_loc("color");
     _pos_loc = _program.uniform_loc("model");

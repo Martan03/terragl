@@ -45,3 +45,15 @@ target_link_libraries(terragl PRIVATE
     ${OpenGL_LIBRARIES}
     -fsanitize=address
 )
+
+set(ASSETS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+set(ASSETS_DST_DIR "${CMAKE_BINARY_DIR}/assets")
+
+add_custom_target(copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ASSETS_SRC_DIR}
+            ${ASSETS_DST_DIR}
+    COMMENT "Copying assets to build directory"
+)
+
+add_dependencies(terragl copy_assets)
