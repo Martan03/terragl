@@ -51,12 +51,27 @@ Terrain::Terrain(gl::Window &window, int width, int height) :
     _shadow_program(VERT_SHADER, TESC_SHADER, TESE_SHADER, DEPTH_FRAG_SHADER),
     _map(width, height),
     _normal_tex(GL_TEXTURE1),
-    _grass_tex(GL_TEXTURE2),
-    _stone_tex(GL_TEXTURE3) {
+    _grass_mat(GL_TEXTURE3),
+    _stone_mat(GL_TEXTURE6) {
     init_buffers(width, height);
     init_depth_map(SHADOW_WIDTH, SHADOW_HEIGHT);
     vertex_attrib();
     set_static_uniforms();
+
+    _grass_mat.load(
+        "assets/grass/Grass005_1K-JPG_Color.jpg",
+        "assets/grass/Grass005_1K-JPG_NormalGL.jpg",
+        "assets/grass/Grass005_1K-JPG_AmbientOcclusion.jpg",
+        "assets/grass/Grass005_1K-JPG_Roughness.jpg",
+        "assets/grass/Grass005_1K-JPG_Displacement.jpg"
+    );
+    _stone_mat.load(
+        "assets/stone/Rock030_1K-JPG_Color.jpg",
+        "assets/stone/Rock030_1K-JPG_NormalGL.jpg",
+        "assets/stone/Rock030_1K-JPG_AmbientOcclusion.jpg",
+        "assets/stone/Rock030_1K-JPG_Roughness.jpg",
+        "assets/stone/Rock030_1K-JPG_Displacement.jpg"
+    );
 }
 
 Terrain::~Terrain() {
@@ -95,9 +110,9 @@ void Terrain::render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos) {
 
     _height_tex.bind();
     _normal_tex.bind();
-    _grass_tex.bind();
-    _stone_tex.bind();
-    _depth_tex.bind(GL_TEXTURE4);
+    _grass_mat.bind();
+    _stone_mat.bind();
+    _depth_tex.bind(GL_TEXTURE2);
 
     _program.uniform("lightMat", _light_mat);
     _program.uniform("model", model_mat);
@@ -159,9 +174,6 @@ void Terrain::init_buffers(int width, int height) {
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    load_texture(_grass_tex, "assets/grass/Grass005_1K-JPG_Color.jpg");
-    load_texture(_stone_tex, "assets/stone/Rock030_1K-JPG_Color.jpg");
 }
 
 void Terrain::init_depth_map(int width, int height) {
@@ -219,7 +231,7 @@ void Terrain::load_texture(gl::Texture &tex, const char *path) {
     auto data = stbi_load(path, &w, &h, &channels, 0);
     if (data) {
         glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_SRGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data
         );
         glGenerateMipmap(GL_TEXTURE_2D);
     }
@@ -277,9 +289,14 @@ void Terrain::set_static_uniforms() {
     glUniform3f(light_loc, 1, 1, 1);
     _program.uniform("tex", 0);
     _program.uniform("normTex", 1);
-    _program.uniform("grassTex", 2);
-    _program.uniform("stoneTex", 3);
-    _program.uniform("depthTex", 4);
+    _program.uniform("depthTex", 2);
+
+    _program.uniform("grassTex", 3);
+    _program.uniform("grassNormTex", 4);
+    _program.uniform("grassPbrTex", 5);
+    _program.uniform("stoneTex", 6);
+    _program.uniform("stoneNormTex", 7);
+    _program.uniform("stonePbrTex", 8);
 }
 
 } // namespace tgl::terrain

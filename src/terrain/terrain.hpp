@@ -6,6 +6,7 @@
 #include "../gl/vertex_array.hpp"
 #include "../gl/window.hpp"
 #include "../height_map/map.hpp"
+#include "material.hpp"
 
 #include <glm/glm.hpp>
 
@@ -54,8 +55,8 @@ private:
     gl::Texture _normal_tex;
     gl::Texture _noise_tex;
 
-    gl::Texture _grass_tex;
-    gl::Texture _stone_tex;
+    Material _grass_mat;
+    Material _stone_mat;
 
     bool _update = false;
     unsigned int _triangle_cnt = 0;

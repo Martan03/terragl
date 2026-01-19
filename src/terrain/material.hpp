@@ -12,6 +12,8 @@ public:
     // - pbr = unit + 2
     Material(GLenum unit);
 
+    /// Loads texture from given paths and joins AO, Roughness and Displacement
+    /// into one texture.
     void load(
         const char *albedo,
         const char *normal,
@@ -20,6 +22,9 @@ public:
         const char *disp
     );
 
+    /// Binds all the material textures
+    void bind();
+
 private:
     // RGB = material colors
     gl::Texture _albedo;
@@ -27,8 +32,6 @@ private:
     gl::Texture _normal;
     // R = ambient occlusion, G = roughness, B = displacement
     gl::Texture _pbr;
-
-    bool loaded = false;
 
     void load_texture(gl::Texture &tex, const char *path, bool color = false);
 };

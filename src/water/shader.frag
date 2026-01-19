@@ -13,7 +13,7 @@ uniform vec3 viewPos;
 uniform sampler2D depthTex;
 
 const float ambientStrength = 0.2;
-const float specStrength = 0.5;
+const float specStrength = 0.7;
 
 float shadowCalc(vec4 pos, vec3 norm) {
     vec3 projPos = pos.xyz / pos.w;

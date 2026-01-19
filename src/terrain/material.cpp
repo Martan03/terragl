@@ -17,6 +17,13 @@ void Material::load(
     load_texture(_albedo, albedo, true);
     load_texture(_normal, normal);
 
+    _pbr.bind();
+    _pbr.wrap(GL_REPEAT);
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
+    );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     int w, h, ch;
     auto ao_data = stbi_load(ao, &w, &h, &ch, 1);
     auto rough_data = stbi_load(rough, &w, &h, &ch, 1);
@@ -26,18 +33,24 @@ void Material::load(
         std::vector<unsigned char> packed(w * h * 3);
         for (int i = 0; i < w * h; i += 1) {
             packed[i * 3] = ao_data[i];
-            packed[i * 3 + 1] = rough[i];
-            packed[i * 3 + 2] = disp[i];
+            packed[i * 3 + 1] = rough_data[i];
+            packed[i * 3 + 2] = disp_data[i];
         }
         auto d = packed.data();
-        _pbr.bind();
         glTexImage2D(
             GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, d
         );
+        glGenerateMipmap(GL_TEXTURE_2D);
     }
     stbi_image_free(ao_data);
     stbi_image_free(rough_data);
     stbi_image_free(disp_data);
+}
+
+void Material::bind() {
+    _albedo.bind();
+    _normal.bind();
+    _pbr.bind();
 }
 
 void Material::load_texture(gl::Texture &tex, const char *path, bool color) {

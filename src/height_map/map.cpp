@@ -142,8 +142,8 @@ void Map::normals_gen() {
         float hd = _heights[std::max(y - 1, 0) * _width + x];
         float hu = _heights[std::min(y + 1, _height - 1) * _width + x];
 
-        glm::vec3 dx(2.0f, hr - hl, 0.0f);
-        glm::vec3 dy(0.0f, hu - hd, 2.0f);
+        glm::vec3 dx(2.0f * _x_rate, hr - hl, 0.0f);
+        glm::vec3 dy(0.0f, hu - hd, 2.0f * _y_rate);
 
         auto norm = glm::normalize(glm::cross(dy, dx));
         _normals[id] = norm;
