@@ -19,7 +19,6 @@ const float ambientStrength = 0.5;
 const float specStrength = 0.04;
 
 const float texScale = 0.1;
-const float contrast = 1.0;
 
 const float minGrassH = -25;
 const float maxGrassH = -15;
@@ -97,11 +96,10 @@ void main() {
     vec3 grassColor = getTriplanar(grassTex, fragPos, norm);
     grassColor = (grassColor - 0.5) * 0.90 + 0.5;
     vec3 rockColor = getTriplanar(stoneTex, fragPos, norm);
-    rockColor = (rockColor - 0.5) * contrast + 0.5;
 
     float lushFactor = smoothstep(minGrassH, maxGrassH, fragPos.y);
-    vec3 lushColor = grassColor * vec3(0.9, 1.1, 0.9);
-    vec3 dryColor = grassColor * vec3(0.95, 0.9, 0.9);
+    vec3 lushColor = grassColor * vec3(0.9, 1.0, 0.9);
+    vec3 dryColor = grassColor * vec3(0.95, 0.8, 0.9);
     grassColor = mix(lushColor, dryColor, lushFactor);
     vec3 color = mix(grassColor, rockColor, blend);
 
