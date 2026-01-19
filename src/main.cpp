@@ -45,7 +45,7 @@ int main() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        // glEnable(GL_FRAMEBUFFER_SRGB);
         glDebugMessageCallback(err_callback, nullptr);
 
         tgl::scene::Scene scene{ std::move(window), glm::vec3(0, 25, 0) };

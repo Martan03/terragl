@@ -14,7 +14,7 @@ void Material::load(
     const char *rough,
     const char *disp
 ) {
-    load_texture(_albedo, albedo, true);
+    load_texture(_albedo, albedo);
     load_texture(_normal, normal);
 
     _pbr.bind();
