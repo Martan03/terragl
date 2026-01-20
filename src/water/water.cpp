@@ -38,13 +38,10 @@ void Water::render(
     _terrain.depth_texture().bind(GL_TEXTURE2);
     _tex.bind();
 
-    auto model_mat = glm::translate(glm::mat4(1), glm::vec3(-128, 0, -128));
-    _program.uniform("model", model_mat);
     _program.uniform("view", view);
     _program.uniform("lightMat", _terrain.light_matrix());
     _program.uniform("proj", proj);
     _program.uniform("sunPos", sunPos);
-    _program.uniform("time", time);
     _program.uniform("viewPos", _camera.position());
 
     glDepthMask(GL_FALSE);
@@ -55,8 +52,18 @@ void Water::render(
     glEnable(GL_CULL_FACE);
 }
 
+void Water::update(float delta) {
+    offset += delta;
+    _program.use();
+    _program.uniform("time", offset);
+}
+
 void Water::init() {
     _program.use();
+
+    auto model_mat = glm::translate(glm::mat4(1), glm::vec3(-128, 0, -128));
+    _program.uniform("model", model_mat);
+
     _program.uniform("heightTex", 0);
     _program.uniform("waterTex", 1);
     _program.uniform("depthTex", 2);

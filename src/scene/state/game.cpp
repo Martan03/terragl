@@ -26,6 +26,7 @@ void Game::render() {
 void Game::update() {
     _terrain.update();
     _sky.update(_scene.delta());
+    _water.update(_scene.delta());
 }
 
 void Game::handle_input(float delta) {
