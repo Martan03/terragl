@@ -53,9 +53,16 @@ void Water::render(
 }
 
 void Water::update(float delta) {
-    offset += delta;
+    _offset += delta;
     _program.use();
-    _program.uniform("time", offset);
+    _program.uniform("time", _offset);
+}
+
+void Water::regenerate() {
+    _offset = 0;
+    _program.use();
+    _program.uniform("amp", _terrain.map().amp());
+    gen_tex();
 }
 
 void Water::init() {

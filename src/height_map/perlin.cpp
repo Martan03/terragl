@@ -7,17 +7,20 @@ namespace tgl::height_map {
 Perlin::Perlin() : Noise() { }
 
 float Perlin::noise(float x, float y) {
-    int xi = (int)std::floor(x) & 255;
-    int yi = (int)std::floor(y) & 255;
+    float fx = std::floor(x);
+    float fy = std::floor(y);
 
-    x -= std::floor(x);
-    y -= std::floor(y);
+    int xi = (int)fx & 255;
+    int yi = (int)fy & 255;
+
+    x -= fx;
+    y -= fy;
 
     float u = fade(x), v = fade(y);
 
     int a = _perm[xi] + yi;
-    int aa = _perm[a], ab = _perm[a + 1];
     int b = _perm[xi + 1] + yi;
+    int aa = _perm[a], ab = _perm[a + 1];
     int ba = _perm[b], bb = _perm[b + 1];
 
     float x1 = lerp(grad(aa, x, y), grad(ba, x - 1, y), u);

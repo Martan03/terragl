@@ -20,6 +20,7 @@ Settings::Settings(Scene &scene) : State(scene) {
     normal_fbm.padding(pad);
     normal_fbm.set_on_click([this]() {
         _scene.game_state()->terrain().set_fbm(height_map::FbmType::Normal);
+        _scene.game_state()->water().regenerate();
     });
     _widgets.push_back(std::make_unique<gui::Button>(std::move(normal_fbm)));
 
@@ -28,6 +29,7 @@ Settings::Settings(Scene &scene) : State(scene) {
     ridged_fbm.padding(pad);
     ridged_fbm.set_on_click([this]() {
         _scene.game_state()->terrain().set_fbm(height_map::FbmType::Ridged);
+        _scene.game_state()->water().regenerate();
     });
     _widgets.push_back(std::make_unique<gui::Button>(std::move(ridged_fbm)));
 

@@ -128,12 +128,12 @@ void Map::noise_gen(FbmType fbm, Noise &noise, int oct) {
     switch (fbm) {
     case tgl::height_map::FbmType::Normal:
         noiseFunc = [&](float x, float y, int o) {
-            return noise.fbm(x, y, o);
+            return noise.fbm(x, y, 0.5f, o);
         };
         break;
     default:
         noiseFunc = [&](float x, float y, int o) {
-            return noise.ridged_fbm(x, y, o);
+            return noise.ridged_fbm(x, y, 0.5f, o);
         };
         break;
     }

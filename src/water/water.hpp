@@ -16,6 +16,8 @@ public:
     void render(glm::mat4 view, glm::mat4 proj, glm::vec3 sunPos, float time);
     void update(float delta);
 
+    void regenerate();
+
     gl::Texture &texture() { return _tex; }
 
 private:
@@ -25,7 +27,7 @@ private:
     gl::Program _program;
     gl::Texture _tex;
 
-    float offset = 0;
+    float _offset = 0;
 
     void init();
     void gen_tex();

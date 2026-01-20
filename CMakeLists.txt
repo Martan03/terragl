@@ -32,6 +32,7 @@ find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(TBB REQUIRED)
 
 glad_add_library(glad_gl_core_46 REPRODUCIBLE API gl:core=4.6)
 
@@ -42,6 +43,7 @@ target_link_libraries(terragl PRIVATE
     glfw
     glm::glm
     Freetype::Freetype
+    TBB::tbb
     ${OpenGL_LIBRARIES}
     -fsanitize=address
 )

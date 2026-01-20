@@ -26,6 +26,7 @@ public:
     void handle_controller(GLFWgamepadstate &state, int jid) override;
 
     terrain::Terrain &terrain() { return _terrain; }
+    water::Water &water() { return _water; }
 
 private:
     gl::Camera _camera;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <execution>
 #include <tuple>
 #include <vector>
 
@@ -121,12 +122,19 @@ private:
     void process_lake(int id, float level);
 
     template<typename Func> void for_each(Func func) {
-        for (int y = 0; y < _height; ++y) {
-            for (int x = 0; x < _width; ++x) {
-                auto id = y * _width + x;
+        std::vector<int> indices(_width * _height);
+        std::iota(indices.begin(), indices.end(), 0);
+
+        std::for_each(
+            std::execution::par_unseq,
+            indices.begin(),
+            indices.end(),
+            [&](int id) {
+                int x = id % _width;
+                int y = id / _width;
                 func(x, y, id);
             }
-        }
+        );
     }
 };
 

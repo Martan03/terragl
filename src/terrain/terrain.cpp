@@ -135,11 +135,12 @@ void Terrain::update() {
         return;
     }
     _update = false;
-    _map.gen(_noise, _fbm_type);
+    _map.gen(_noise, _fbm_type, 15);
+    _map.hydro_erosion();
+    
     gen_height_tex();
     gen_normal_tex();
     gen_noise_tex();
-    gen();
 }
 
 void Terrain::set_noise(height_map::NoiseType type) {
