@@ -6,6 +6,7 @@
 #include <random>
 #include <unordered_map>
 
+#include "noise.hpp"
 #include "perlin.hpp"
 #include "simplex.hpp"
 
@@ -31,26 +32,26 @@ Map::Map(
     _lacunarity(lacunarity),
     _persist(persist) { }
 
-void Map::gen(NoiseType type, int oct) {
-    switch (type) {
+void Map::gen(NoiseType noise, FbmType fbm, int oct) {
+    switch (noise) {
     case NoiseType::Perlin:
-        gen_perlin(oct);
+        gen_perlin(fbm, oct);
         break;
     case NoiseType::Simplex:
-        gen_simplex(oct);
+        gen_simplex(fbm, oct);
         break;
     }
     normals_gen();
 }
 
-void Map::gen_perlin(int oct) {
+void Map::gen_perlin(FbmType type, int oct) {
     auto perlin = Perlin();
-    noise_gen(perlin, oct);
+    noise_gen(type, perlin, oct);
 }
 
-void Map::gen_simplex(int oct) {
+void Map::gen_simplex(FbmType type, int oct) {
     auto simplex = Simplex();
-    noise_gen(simplex, oct);
+    noise_gen(type, simplex, oct);
 }
 
 void Map::hydro_erosion(ErosionConf conf) {
@@ -122,15 +123,25 @@ std::vector<unsigned char> Map::pixels() {
     return pixels;
 }
 
-void Map::noise_gen(Noise &noise, int oct) {
+void Map::noise_gen(FbmType fbm, Noise &noise, int oct) {
+    std::function<float(float, float, int)> noiseFunc;
+    switch (fbm) {
+    case tgl::height_map::FbmType::Normal:
+        noiseFunc = [&](float x, float y, int o) {
+            return noise.fbm(x, y, o);
+        };
+        break;
+    default:
+        noiseFunc = [&](float x, float y, int o) {
+            return noise.ridged_fbm(x, y, o);
+        };
+        break;
+    }
+
     for_each([&](int x, int y, int id) {
         auto rx = (float)x * _x_rate * _freq;
         auto ry = (float)y * _y_rate * _freq;
-        // float val = noise.fbm(rx, ry, oct);
-        // float val = noise.fbm(rx, ry, 0.5f, oct);
-        // auto val = noise.deriv_fbm(rx, ry, oct);
-        float val = noise.ridged_fbm(rx, ry, 0.5f, oct);
-        // _heights[id] = val.z * _amp;
+        float val = noiseFunc(rx, ry, oct);
         _heights[id] = (std::pow(val * 0.5 + 0.5, 3) * 2 - 1) * _amp;
     });
 }

@@ -5,6 +5,7 @@
 namespace tgl::height_map {
 
 enum class NoiseType { Perlin, Simplex };
+enum class FbmType { Normal, Ridged };
 
 class Noise {
 public:

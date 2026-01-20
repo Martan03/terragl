@@ -47,9 +47,9 @@ public:
         float lacunarity = 2,
         float persist = 0.5);
 
-    void gen(NoiseType type, int oct = 5);
-    void gen_perlin(int oct = 5);
-    void gen_simplex(int oct = 5);
+    void gen(NoiseType noise, FbmType fbm, int oct = 5);
+    void gen_perlin(FbmType fbm, int oct = 5);
+    void gen_simplex(FbmType fbm, int oct = 5);
 
     void hydro_erosion(ErosionConf conf = ErosionConf{});
 
@@ -75,7 +75,7 @@ private:
     std::vector<glm::vec3> _normals;
     std::vector<float> _water;
 
-    void noise_gen(Noise &noise, int oct = 1);
+    void noise_gen(FbmType fbm, Noise &noise, int oct = 1);
     void normals_gen();
 
     struct Droplet {

@@ -11,35 +11,32 @@ namespace tgl::scene::state {
 
 Settings::Settings(Scene &scene) : State(scene) {
     auto &tsys = scene.text_sys();
-    auto nt = gui::Text(glm::vec2(5, 60), tsys, "Noise type:");
-    _widgets.push_back(std::make_unique<gui::Text>(std::move(nt)));
+    auto ft = gui::Text(glm::vec2(5, 60), tsys, "FBM type:");
+    _widgets.push_back(std::make_unique<gui::Text>(std::move(ft)));
 
     auto pad = glm::vec2(10, 15);
-    auto perlin =
-        gui::Button(glm::vec2(10, 70), glm::vec2(125, 35), tsys, "Perlin");
-    perlin.padding(pad);
-    perlin.set_on_click([this]() {
-        _scene.game_state()->terrain().set_noise(
-            height_map::NoiseType::Perlin
-        );
+    auto normal_fbm =
+        gui::Button(glm::vec2(10, 70), glm::vec2(125, 35), tsys, "Normal");
+    normal_fbm.padding(pad);
+    normal_fbm.set_on_click([this]() {
+        _scene.game_state()->terrain().set_fbm(height_map::FbmType::Normal);
     });
-    _widgets.push_back(std::make_unique<gui::Button>(std::move(perlin)));
+    _widgets.push_back(std::make_unique<gui::Button>(std::move(normal_fbm)));
 
-    auto simplex =
-        gui::Button(glm::vec2(10, 110), glm::vec2(125, 35), tsys, "Simplex");
-    simplex.padding(pad);
-    simplex.set_on_click([this]() {
-        _scene.game_state()->terrain().set_noise(
-            height_map::NoiseType::Simplex
-        );
+    auto ridged_fbm =
+        gui::Button(glm::vec2(10, 110), glm::vec2(125, 35), tsys, "Ridged");
+    ridged_fbm.padding(pad);
+    ridged_fbm.set_on_click([this]() {
+        _scene.game_state()->terrain().set_fbm(height_map::FbmType::Ridged);
     });
-    _widgets.push_back(std::make_unique<gui::Button>(std::move(simplex)));
+    _widgets.push_back(std::make_unique<gui::Button>(std::move(ridged_fbm)));
 
     layout();
 }
 
 void Settings::render() {
     _scene.game_state()->terrain().update();
+    _scene.game_state()->render();
     for (auto &widget : _widgets) {
         widget->render();
     }
@@ -64,6 +61,17 @@ void Settings::handle_click(int button, int action, int mods) {
         widget->on_mouse_click(
             button, action, _scene.mouse_x(), _scene.mouse_y()
         );
+    }
+}
+
+void Settings::handle_controller(GLFWgamepadstate &state, int jid) {
+    auto isPressed = [&](int key) {
+        return state.buttons[key] && !_scene.contoller_pressed(jid, key);
+    };
+
+    if (isPressed(GLFW_GAMEPAD_BUTTON_START) ||
+        isPressed(GLFW_GAMEPAD_BUTTON_B)) {
+        _scene.set_state(StateType::Game);
     }
 }
 

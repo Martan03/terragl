@@ -23,6 +23,7 @@ public:
     void update();
 
     void set_noise(height_map::NoiseType type);
+    void set_fbm(height_map::FbmType type);
 
     height_map::Map &map() { return _map; }
     gl::Texture &texture() { return _noise_tex; }
@@ -49,6 +50,7 @@ private:
     glm::mat4 _light_mat;
 
     height_map::NoiseType _noise = height_map::NoiseType::Perlin;
+    height_map::FbmType _fbm_type = height_map::FbmType::Ridged;
 
     height_map::Map _map;
     gl::Texture _height_tex;

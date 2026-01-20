@@ -21,6 +21,8 @@ public:
 
     void handle_click(int button, int action, int mods) override;
 
+    void handle_controller(GLFWgamepadstate &state, int jid) override;
+
 private:
     std::vector<std::unique_ptr<gui::Widget>> _widgets;
 

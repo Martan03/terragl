@@ -135,7 +135,7 @@ void Terrain::update() {
         return;
     }
     _update = false;
-    _map.gen(_noise);
+    _map.gen(_noise, _fbm_type);
     gen_height_tex();
     gen_normal_tex();
     gen_noise_tex();
@@ -143,16 +143,21 @@ void Terrain::update() {
 }
 
 void Terrain::set_noise(height_map::NoiseType type) {
-    if (type == _noise) {
+    if (type == _noise)
         return;
-    }
     _noise = type;
+    _update = true;
+}
+void Terrain::set_fbm(height_map::FbmType type) {
+    if (type == _fbm_type)
+        return;
+    _fbm_type = type;
     _update = true;
 }
 
 void Terrain::init_buffers(int width, int height) {
     std::cout << "Noise start" << std::endl;
-    _map.gen(_noise, 15);
+    _map.gen(_noise, _fbm_type, 15);
     std::cout << "Noise end" << std::endl;
     _map.hydro_erosion();
 
