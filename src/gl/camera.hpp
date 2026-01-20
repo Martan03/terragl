@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "glad/gl.h"
+#include <glad/gl.h>
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>

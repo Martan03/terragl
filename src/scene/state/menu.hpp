@@ -23,10 +23,14 @@ public:
 
 private:
     std::vector<gui::Button> _buttons;
+    unsigned _active = 0;
 
     void center_buttons(
         std::function<void(gui::Button &)> btn_action = nullptr
     );
+
+    void set_active(unsigned id);
+    void exec_active();
 };
 
 } // namespace tgl::scene::state

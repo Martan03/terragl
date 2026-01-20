@@ -1,6 +1,6 @@
 #include "quad.hpp"
 
-#include "glad/gl.h"
+#include <glad/gl.h>
 
 #include <glm/gtc/type_ptr.hpp>
 

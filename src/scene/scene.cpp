@@ -2,8 +2,6 @@
 
 #include <format>
 
-#include <GLFW/glfw3.h>
-
 #include "state/game.hpp"
 #include "state/menu.hpp"
 #include "state/settings.hpp"

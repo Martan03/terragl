@@ -1,5 +1,7 @@
 #include "button.hpp"
 
+#include <glad/gl.h>
+
 #if true
 #include <GLFW/glfw3.h>
 #endif
@@ -48,6 +50,11 @@ void Button::padding(glm::vec4 pad) {
         return;
     _padding = pad;
     _text.set_pos(glm::vec2(_pos.x + pad.w, _pos.y + _size.y - pad.z));
+}
+
+void Button::exec_on_click() {
+    if (_on_click)
+        _on_click();
 }
 
 bool Button::on_mouse_click(int button, int action, double x, double y) {

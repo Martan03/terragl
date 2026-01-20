@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cmath>
+
+#include <glad/gl.h>
+
 #if true
 #include <GLFW/glfw3.h>
 #endif

@@ -23,6 +23,7 @@ public:
     void set_size(glm::vec2 size) override;
 
     void set_on_click(std::function<void()> callback) { _on_click = callback; }
+    void exec_on_click();
     bool on_mouse_click(int button, int action, double x, double y) override;
 
     void fg(glm::vec3 color) { _text.set_fg(color); }

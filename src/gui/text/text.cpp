@@ -1,6 +1,6 @@
 #include "text.hpp"
 
-#include "glad/gl.h"
+#include <glad/gl.h>
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

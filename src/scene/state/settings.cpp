@@ -9,8 +9,7 @@
 
 namespace tgl::scene::state {
 
-Settings::Settings(Scene &scene) :
-    State(scene), _map(&scene.game_state()->terrain().texture()) {
+Settings::Settings(Scene &scene) : State(scene) {
     auto &tsys = scene.text_sys();
     auto nt = gui::Text(glm::vec2(5, 60), tsys, "Noise type:");
     _widgets.push_back(std::make_unique<gui::Text>(std::move(nt)));
@@ -44,7 +43,6 @@ void Settings::render() {
     for (auto &widget : _widgets) {
         widget->render();
     }
-    _map.render();
 }
 
 void Settings::resize() {
@@ -52,7 +50,6 @@ void Settings::resize() {
     for (auto &widget : _widgets) {
         widget->set_proj(proj);
     }
-    _map.set_proj(proj);
     layout();
 }
 
@@ -77,8 +74,6 @@ void Settings::layout() {
     auto ms = std::max(std::min(mw, mh), 0);
     auto mx = float(mw - ms) / 2.0f + 145;
     auto my = float(mh - ms) / 2.0f + 10;
-    _map.set_pos(glm::vec2(mx, my));
-    _map.set_size(glm::vec2(ms, ms));
 }
 
 } // namespace tgl::scene::state
