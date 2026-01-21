@@ -5,7 +5,7 @@ out vec4 FragColor;
 
 uniform vec3 color;
 uniform sampler2D tex;
-uniform bool useTex;
+uniform bool useTex = false;
 
 void main() {
     if (useTex) {

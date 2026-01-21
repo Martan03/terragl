@@ -11,7 +11,9 @@ namespace tgl::gui {
 Button::Button(glm::vec2 size, TextSystem &sys, std::string text) :
     Widget(glm::vec2(0, 0), size),
     _text(glm::vec2(0, size.y), size, sys, text),
-    _bg(glm::vec2(0, 0), size) { }
+    _bg(glm::vec2(0, 0), size) {
+    bg(glm::vec3(0, 0, 0));
+}
 
 Button::Button(
     glm::vec2 pos, glm::vec2 size, TextSystem &sys, std::string text

@@ -18,6 +18,7 @@ Settings::Settings(Scene &scene) : State(scene) {
     auto normal_fbm =
         gui::Button(glm::vec2(10, 70), glm::vec2(125, 35), tsys, "Normal");
     normal_fbm.padding(pad);
+    normal_fbm.bg(glm::vec3(0, 0, 0));
     normal_fbm.set_on_click([this]() {
         _scene.game_state()->terrain().set_fbm(height_map::FbmType::Normal);
         _scene.game_state()->water().regenerate();
@@ -27,6 +28,7 @@ Settings::Settings(Scene &scene) : State(scene) {
     auto ridged_fbm =
         gui::Button(glm::vec2(10, 110), glm::vec2(125, 35), tsys, "Ridged");
     ridged_fbm.padding(pad);
+    ridged_fbm.bg(glm::vec3(0, 0, 0));
     ridged_fbm.set_on_click([this]() {
         _scene.game_state()->terrain().set_fbm(height_map::FbmType::Ridged);
         _scene.game_state()->water().regenerate();
